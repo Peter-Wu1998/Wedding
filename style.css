@@ -1,0 +1,944 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 方舟像素字体 - 在线版本（支持中英文） */
+@import url('https://cdn.jsdelivr.net/npm/ark-pixel-font@latest/dist/ark-pixel-12px-proportional-zh_cn.css');
+
+/* 本地英文像素字体作为备用 */
+@font-face {
+    font-family: 'Press Start 2P';
+    src: url('fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    background: #1a1a2e;
+    min-height: 100vh;
+    overflow-x: hidden;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* 封面样式 - GBA风格 */
+.cover {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: 
+        repeating-linear-gradient(0deg, #ff6b9d 0px, #ff6b9d 2px, #ff8fab 2px, #ff8fab 4px),
+        linear-gradient(180deg, #ff6b9d 0%, #c41e3a 100%);
+    position: relative;
+    overflow: hidden;
+    border: 8px solid #000;
+    box-sizing: border-box;
+}
+
+/* GBA风格扫描�?*/
+.cover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    pointer-events: none;
+    animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+}
+
+/* GBA风格装饰�?*/
+.cover::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+}
+
+.cover-content {
+    text-align: center;
+    z-index: 1;
+    color: #fff;
+    text-shadow: 
+        3px 3px 0px #000,
+        -1px -1px 0px #000,
+        1px -1px 0px #000,
+        -1px 1px 0px #000,
+        1px 1px 0px #000;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 3rem;
+    border: 4px solid #fff;
+}
+
+.title {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.2rem;
+    animation: pixelBlink 2s steps(2) infinite;
+}
+
+@keyframes pixelBlink {
+    0%, 75% { opacity: 1; }
+    76%, 100% { opacity: 0.7; }
+}
+
+.subtitle {
+    font-size: 1rem;
+    margin-bottom: 3rem;
+    line-height: 2;
+}
+
+/* GBA风格按钮 */
+.open-btn {
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
+    color: #000;
+    border: 4px solid #000;
+    cursor: pointer;
+    transition: none;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+        4px 4px 0px #000;
+    font-weight: normal;
+    text-transform: uppercase;
+    position: relative;
+}
+
+.open-btn::before {
+    content: '�?;
+    position: absolute;
+    left: 10px;
+    animation: arrowBlink 1s steps(2) infinite;
+}
+
+@keyframes arrowBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.open-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #ffd700 100%);
+}
+
+.open-btn:active {
+    box-shadow: 
+        inset 2px 2px 0px rgba(0, 0, 0, 0.5),
+        inset -2px -2px 0px rgba(255, 255, 255, 0.5),
+        2px 2px 0px #000;
+    transform: translate(2px, 2px);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s steps(4);
+}
+
+.fade-in-delay {
+    animation: fadeIn 0.5s steps(4) 0.3s backwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* 主内容样�?- GBA风格 */
+.main-content {
+    display: none;
+    padding: 2rem 1rem 6rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.main-content.active {
+    display: block;
+    animation: slideIn 0.3s steps(6) forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* GBA风格卡片容器 */
+.couple-section,
+.wedding-info,
+.love-message,
+.countdown-section {
+    background: linear-gradient(180deg, #d8d8d8 0%, #b0b0b0 100%);
+    padding: 1.5rem;
+    border: 4px solid #000;
+    margin: 2rem 0;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+        6px 6px 0px #000;
+    position: relative;
+}
+
+/* GBA风格标题�?*/
+.couple-section::before,
+.wedding-info::before,
+.love-message::before,
+.countdown-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b9d 0%, #c41e3a 50%, #ff6b9d 100%);
+}
+
+.couple-section {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.groom, .bride {
+    text-align: center;
+    flex: 1;
+}
+
+.name {
+    font-size: 2rem;
+    color: #c41e3a;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.role {
+    color: #666;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.heart {
+    font-size: 4rem;
+    animation: pixelHeartbeat 1s steps(2) infinite;
+    margin: 0 1rem;
+    filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes pixelHeartbeat {
+    0%, 50% { transform: scale(1); }
+    51%, 100% { transform: scale(1.2); }
+}
+
+.section-title {
+    text-align: center;
+    font-size: 1.6rem;
+    color: #c41e3a;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding: 0.5rem;
+    background: linear-gradient(90deg, transparent 0%, rgba(196, 30, 58, 0.1) 50%, transparent 100%);
+    border-top: 2px solid #c41e3a;
+    border-bottom: 2px solid #c41e3a;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin: 1rem 0;
+    padding: 0.8rem;
+    border: 3px solid #000;
+    background: linear-gradient(180deg, #e0e0e0 0%, #c8c8c8 100%);
+    box-shadow: inset -1px -1px 0px rgba(0, 0, 0, 0.2);
+}
+
+.icon {
+    font-size: 3rem;
+    margin-right: 1rem;
+    filter: drop-shadow(1px 1px 0px rgba(0, 0, 0, 0.3));
+}
+
+.info-text {
+    flex: 1;
+}
+
+.label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.value {
+    font-size: 1.2rem;
+    color: #000;
+    line-height: 1.8;
+}
+
+.address {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    line-height: 1.8;
+}
+
+.message-text {
+    line-height: 2.5;
+    color: #333;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* GBA风格倒计�?*/
+.countdown {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+}
+
+.time-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
+    padding: 1rem 0.8rem;
+    min-width: 70px;
+    color: #ffd700;
+    border: 3px solid #000;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.1),
+        3px 3px 0px #000;
+    text-shadow: 
+        1px 1px 0px #000,
+        -1px -1px 0px #000,
+        1px -1px 0px #000,
+        -1px 1px 0px #000;
+}
+
+.time-value {
+    font-size: 2.4rem;
+    font-weight: bold;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+}
+
+.time-label {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: #ffa500;
+}
+
+/* GBA风格按钮 */
+.map-section {
+    text-align: center;
+    margin: 2rem 0;
+}
+
+.map-btn {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    background: linear-gradient(180deg, #5a9 0%, #2a7 100%);
+    color: #fff;
+    border: 4px solid #000;
+    cursor: pointer;
+    transition: none;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.3),
+        4px 4px 0px #000;
+    text-shadow: 2px 2px 0px #000;
+}
+
+.map-btn:hover {
+    background: linear-gradient(180deg, #6bd 0%, #5a9 100%);
+}
+
+.map-btn:active {
+    box-shadow: 
+        inset 2px 2px 0px rgba(0, 0, 0, 0.5),
+        2px 2px 0px #000;
+    transform: translate(2px, 2px);
+}
+
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: #999;
+    margin-top: 3rem;
+    font-size: 0.8rem;
+    line-height: 2;
+}
+
+.couple-names {
+    font-size: 1.2rem;
+    color: #ff6b9d;
+    margin-top: 0.5rem;
+}
+
+/* 飘落花瓣效果 */
+.petals {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.petal {
+    position: absolute;
+    top: -20px;
+    opacity: 0.8;
+}
+
+.petal { animation-timing-function: linear; }
+
+/* 花瓣类型1：樱花花�?- 圆润带缺�?*/
+.petal.type1 {
+    width: 12px;
+    height: 20px;
+    background: linear-gradient(135deg, #ffb6d9 0%, #ff85b8 50%, #ff6ba3 100%);
+    border-radius: 50% 0 50% 50%;
+    box-shadow: 
+        inset -2px -3px 5px rgba(255, 105, 150, 0.6),
+        inset 2px 2px 5px rgba(255, 255, 255, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 花瓣类型2：玫瑰花�?- 椭圆�?*/
+.petal.type2 {
+    width: 14px;
+    height: 22px;
+    background: linear-gradient(180deg, #ff6b9d 0%, #ff85b8 40%, #ffb6d9 80%, #ffd1e8 100%);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    box-shadow: 
+        inset 1px 3px 6px rgba(255, 255, 255, 0.5),
+        inset -1px -2px 5px rgba(255, 60, 120, 0.4),
+        0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 花瓣类型3：梅花花�?- 纵向椭圆 */
+.petal.type3 {
+    width: 13px;
+    height: 18px;
+    background: radial-gradient(ellipse at 40% 30%, #ffe0ec 0%, #ffb6d9 30%, #ff85b8 70%, #ff6b9d 100%);
+    border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+    box-shadow: 
+        inset 2px 2px 4px rgba(255, 255, 255, 0.6),
+        inset -2px -2px 4px rgba(255, 80, 130, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* 花瓣类型4：桃花花�?- 水滴�?*/
+.petal.type4 {
+    width: 11px;
+    height: 19px;
+    background: linear-gradient(160deg, #ff7aa5 0%, #ff99bb 40%, #ffcce0 100%);
+    border-radius: 50% 50% 50% 0;
+    box-shadow: 
+        inset 3px 2px 5px rgba(255, 255, 255, 0.5),
+        inset -1px -2px 4px rgba(255, 70, 110, 0.5),
+        0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 花瓣类型5：牡丹花�?- 长椭�?*/
+.petal.type5 {
+    width: 15px;
+    height: 23px;
+    background: linear-gradient(180deg, #ff5a8a 0%, #ff85b8 30%, #ffb6d9 60%, #ffd1e8 100%);
+    border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
+    box-shadow: 
+        inset 1px 3px 6px rgba(255, 255, 255, 0.6),
+        inset -1px -3px 5px rgba(255, 50, 100, 0.4),
+        0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* 花瓣飘落动画 - 垂直下落，无摆动 */
+@keyframes fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fall2 {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(-360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fall3 {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes fall4 {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(180deg);
+        opacity: 0;
+    }
+}
+
+@keyframes fall5 {
+    0% {
+        transform: translateY(0) rotate(0deg) rotateX(0deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) rotateX(360deg);
+        opacity: 0;
+    }
+}
+
+/* 响应式设�?*/
+@media (max-width: 768px) {
+    .title {
+        font-size: 2.5rem;
+        letter-spacing: 0.3rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .couple-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .heart {
+        margin: 1rem 0;
+    }
+    
+    .countdown {
+        gap: 0.5rem;
+    }
+    
+    .time-box {
+        min-width: 60px;
+        padding: 1rem 0.5rem;
+    }
+    
+    .time-value {
+        font-size: 1.5rem;
+    }
+    
+    .name {
+        font-size: 1.5rem;
+    }
+
+    .character {
+        transform: scale(0.7) translateX(-50%);
+    }
+}
+
+/* 底部可移动的小人 */
+.character {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    transition: left 0.1s linear;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* 跑步角色动画 */
+.running-character {
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#characterSprite {
+    max-width: 100%;
+    max-height: 100%;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* 当角色向左移动时翻转图片 */
+.character.moving-left #characterSprite {
+    transform: scaleX(-1);
+}
+
+/* 清理旧样�?*/
+.flower-basket,
+.basket-rim,
+.basket-body,
+.basket-handle,
+.groom-figure,
+.bride-figure,
+.groom-head,
+.bride-head,
+.groom-body,
+.bride-body,
+.character-body,
+.character-head,
+.character-arms,
+.character-body-main {
+    display: none;
+}
+
+
+/* 接到花瓣的特�?- GBA风格 */
+.catch-effect {
+    position: fixed;
+    font-size: 2.4rem;
+    pointer-events: none;
+    animation: gbaCatchEffect 0.8s steps(4) forwards;
+    z-index: 10001;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    color: #ffd700;
+    text-shadow: 
+        2px 2px 0px #000,
+        -1px -1px 0px #000,
+        1px -1px 0px #000,
+        -1px 1px 0px #000;
+}
+
+@keyframes gbaCatchEffect {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-60px) scale(1.5);
+    }
+}
+
+/* 计分�?- GBA风格 */
+.score-board {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    padding: 0.8rem 1.2rem;
+    border: 4px solid #000;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.1),
+        4px 4px 0px #000;
+    z-index: 10000;
+    font-size: 1rem;
+    color: #ffd700;
+    font-weight: bold;
+    text-shadow: 1px 1px 0px #000;
+}
+
+.score-board .score-label {
+    font-size: 0.8rem;
+    color: #ffa500;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.score-board .score-value {
+    font-size: 3rem;
+    text-align: center;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    color: #ffd700;
+}
+
+/* 祝福按钮 - GBA风格 */
+.blessing-btn {
+    position: fixed;
+    top: 10px;
+    right: 200px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    background: linear-gradient(180deg, #ff69b4 0%, #c41e3a 100%);
+    color: #fff;
+    border: 4px solid #000;
+    cursor: pointer;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.3),
+        4px 4px 0px #000;
+    text-shadow: 2px 2px 0px #000;
+    z-index: 10000;
+    transition: none;
+}
+
+.blessing-btn:hover {
+    background: linear-gradient(180deg, #ff8fab 0%, #ff6b9d 100%);
+}
+
+.blessing-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 
+        inset 2px 2px 0px rgba(0, 0, 0, 0.5),
+        2px 2px 0px #000;
+}
+
+/* 祝福弹窗 */
+.blessing-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 20000;
+    justify-content: center;
+    align-items: center;
+}
+
+.blessing-modal.active {
+    display: flex;
+    animation: fadeIn 0.3s steps(4);
+}
+
+.blessing-modal-content {
+    background: linear-gradient(180deg, #d8d8d8 0%, #b0b0b0 100%);
+    border: 4px solid #000;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+        8px 8px 0px #000;
+    width: 90%;
+    max-width: 500px;
+    animation: modalSlide 0.3s steps(6);
+}
+
+@keyframes modalSlide {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.blessing-modal-header {
+    background: linear-gradient(90deg, #c41e3a 0%, #ff6b9d 100%);
+    padding: 1rem;
+    border-bottom: 4px solid #000;
+    color: #fff;
+    font-size: 1.2rem;
+    text-shadow: 2px 2px 0px #000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blessing-modal-close {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    line-height: 1;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+}
+
+.blessing-modal-close:hover {
+    color: #ffd700;
+}
+
+.blessing-modal-body {
+    padding: 2rem;
+}
+
+.blessing-input-group {
+    margin-bottom: 1.5rem;
+}
+
+.blessing-input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-size: 0.8rem;
+}
+
+.blessing-input-group input,
+.blessing-input-group textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 3px solid #000;
+    background: #e8e8e8;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-size: 0.7rem;
+    box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.2);
+}
+
+.blessing-input-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.blessing-submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-family: 'Ark Pixel 12px Proportional', monospace;
+    background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
+    color: #000;
+    border: 4px solid #000;
+    cursor: pointer;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.3),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.5),
+        4px 4px 0px #000;
+}
+
+.blessing-submit-btn:hover {
+    background: linear-gradient(180deg, #fff 0%, #ffd700 100%);
+}
+
+.blessing-submit-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 
+        inset 2px 2px 0px rgba(0, 0, 0, 0.5),
+        2px 2px 0px #000;
+}
+
+/* 祝福列表 */
+.blessing-list {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    width: 300px;
+    max-height: 500px;
+    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    border: 4px solid #000;
+    box-shadow: 
+        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
+        inset 2px 2px 0px rgba(255, 255, 255, 0.1),
+        4px 4px 0px #000;
+    z-index: 10000;
+    overflow: hidden;
+}
+
+.blessing-list-header {
+    background: linear-gradient(90deg, #ff6b9d 0%, #c41e3a 100%);
+    padding: 0.8rem;
+    border-bottom: 2px solid #000;
+    color: #fff;
+    font-size: 0.9rem;
+    text-shadow: 2px 2px 0px #000;
+    text-align: center;
+}
+
+.blessing-list-items {
+    max-height: 440px;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+
+.blessing-list-item {
+    background: linear-gradient(180deg, #d8d8d8 0%, #b8b8b8 100%);
+    border: 2px solid #000;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    animation: blessingItemSlide 0.5s steps(6);
+}
+
+@keyframes blessingItemSlide {
+    from {
+        transform: translateX(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.blessing-list-item-name {
+    color: #c41e3a;
+    font-size: 0.7rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.blessing-list-item-text {
+    color: #333;
+    font-size: 0.5rem;
+    line-height: 1.6;
+    word-wrap: break-word;
+}
+
+/* 祝福爱心 */
+.blessing-heart {
+    position: fixed;
+    font-size: 4rem;
+    z-index: 9998;
+    cursor: default;
+    filter: drop-shadow(3px 3px 0px rgba(0, 0, 0, 0.5));
+    animation: fall linear;
+}
+
