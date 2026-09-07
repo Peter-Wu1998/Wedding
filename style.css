@@ -328,7 +328,7 @@ body {
     text-align: center;
 }
 
-/* GBA风格倒计�?*/
+/* GBA风格倒计*/
 .countdown {
     display: flex;
     justify-content: space-around;
@@ -593,7 +593,6 @@ body {
     }
 }
 
-/* 底部可移动的小人 */
 .character {
     position: fixed;
     bottom: 30px;
@@ -605,13 +604,9 @@ body {
     pointer-events: none;
 }
 
-/* 跑步角色动画 */
 .running-character {
-    width: 300px;
-    height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 240px;
+    height: 240px;
 }
 
 #characterSprite {
@@ -619,22 +614,25 @@ body {
     height: 240px;
     background-image: url("./spritesheet_wedding.png");
     background-repeat: no-repeat;
-    /* 整张雪碧图缩放后的尺寸 */
+    /* 整张雪碧图真实尺寸 */
     background-size: 2400px 1440px;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
 
+/* 向左移动翻转 */
 .character.moving-left #characterSprite {
     transform: scaleX(-1);
 }
 
-.character {
-    position: absolute;
-    bottom:20px;
-    overflow:hidden;
+@media (max-width: 768px) {
+    .character {
+        transform: scale(0.8) translateX(-50%);
+    }
 }
+
+
 
 
 /* 清理旧样�?*/

@@ -131,14 +131,14 @@ function addBlessingToList(blessing) {
     blessings.push(blessing);
 }
 
-// ==================== 角色控制系统【雪碧图版本】 ====================
+// ==================== 角色控制系统【240px单帧雪碧图】 ====================
 let characterX = 50;
 let score = 0;
 let targetX = 50;
 let currentFrame = 0;
 let lastX = 50;
 
-// 帧配置
+// 帧业务配置
 const idleFrame = 0;
 const basketDownEnd = 15;
 const basketUpStart = 15;
@@ -150,14 +150,14 @@ let characterState = 'idle';
 let hasNearbyPetal = false;
 const moveSpeed = 0.8;
 
-// 雪碧图配置 6行10列，单帧640px
+// ==========雪碧图参数（现在单帧240px，10列6行）==========
 const SPRITE_COLS = 10;
-const FRAME_W = 640;
-const FRAME_H = 640;
+const FRAME_W = 240;
+const FRAME_H = 240;
 
 let animId = null;
 
-// 根据帧序号设置雪碧图背景偏移
+// 直接原始像素偏移，不需要缩放系数
 function setSpriteFrame(frameIdx) {
     const spriteDiv = document.getElementById('characterSprite');
     if (!spriteDiv) return;
@@ -246,7 +246,6 @@ function updateCharacterAnimation() {
             break;
     }
 
-    // 切换雪碧图帧
     setSpriteFrame(currentFrame);
     lastX = characterX;
 }
@@ -325,10 +324,11 @@ function checkPetalCollision() {
     const character = document.getElementById('character');
     if (!character) return;
     const characterRect = character.getBoundingClientRect();
-    const actualCharacterLeft = characterRect.left + 100;
-    const actualCharacterRight = characterRect.right - 100;
-    const actualCharacterTop = characterRect.top + 100;
-    const actualCharacterBottom = characterRect.bottom - 100;
+    // 角色缩小到240，碰撞阈值同步调小
+    const actualCharacterLeft = characterRect.left + 60;
+    const actualCharacterRight = characterRect.right - 60;
+    const actualCharacterTop = characterRect.top + 60;
+    const actualCharacterBottom = characterRect.bottom - 60;
 
     blessingHearts.forEach((bh, index) => {
         const heartRect = bh.element.getBoundingClientRect();
