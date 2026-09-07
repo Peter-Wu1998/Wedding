@@ -154,18 +154,17 @@ const moveSpeed = 0.8;
 const SPRITE_COLS = 10;
 const FRAME_W = 640;
 const FRAME_H = 640;
-const SCALE = 240 / 640; //缩放系数！页面窗口240px，原图单帧640px
 
 let animId = null;
 
+// 根据帧序号设置雪碧图背景偏移
 function setSpriteFrame(frameIdx) {
     const spriteDiv = document.getElementById('characterSprite');
     if (!spriteDiv) return;
     const col = frameIdx % SPRITE_COLS;
     const row = Math.floor(frameIdx / SPRITE_COLS);
-    // 偏移量也要乘以缩放比例
-    const x = -(col * FRAME_W * SCALE);
-    const y = -(row * FRAME_H * SCALE);
+    const x = -(col * FRAME_W);
+    const y = -(row * FRAME_H);
     spriteDiv.style.backgroundPosition = `${x}px ${y}px`;
 }
 
