@@ -89,34 +89,13 @@ async function preloadFrames(onProgress) {
     await Promise.all(tasks);
 }
 
-async function preloadFonts() {
-    if (!document.fonts || !document.fonts.load) {
-        return;
-    }
-
-    try {
-        await Promise.all([
-            document.fonts.load('16px "Pixeloid Sans"'),
-            document.fonts.load('bold 16px "Pixeloid Sans"'),
-            document.fonts.load('16px "Press Start 2P"'),
-            document.fonts.ready
-        ]);
-    } catch (e) {
-        // 字体失败也不阻塞上线体验
-        console.warn('字体加载未完全成功，继续进入页面', e);
-    }
-}
-
 async function prepareResources() {
-    // 帧图占进度 0–90%，字体占 90–100%
     updateLoadingProgress(0, 100);
 
     await preloadFrames((loaded, total) => {
-        const mapped = Math.round((loaded / total) * 90);
-        updateLoadingProgress(mapped, 100);
+        updateLoadingProgress(loaded, total);
     });
 
-    await preloadFonts();
     updateLoadingProgress(100, 100);
 }
 
@@ -166,7 +145,7 @@ function spawnNextPetal(guestOverride) {
 
     petal.style.left = Math.random() * 80 + 10 + '%';
 
-    const duration = Math.random() * 3 + 7; // 7-10秒，单片更易接
+    const duration = Math.random() * 2 + 4; // 4-6秒
     petal.style.animationDuration = duration + 's';
     petal.style.animationDelay = '0s';
 
@@ -207,25 +186,55 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // ==================== 衷心感谢 · 名单 ====================
 
-function addGuestToBoard(name) {
+function flyGuestTagToBoard(guestName, petalRect) {
     const list = document.getElementById('guestList');
-    const hint = document.getElementById('guestHint');
     if (!list) return;
 
-    if (hint) hint.hidden = true;
+    // 先在名单里占位，拿到真正落点（不瞬移刷新）
+    const slot = document.createElement('span');
+    slot.className = 'guest-name is-slot';
+    slot.textContent = guestName;
+    list.insertBefore(slot, list.firstChild);
+    blessings.push(guestName);
 
-    const item = document.createElement('span');
-    item.className = 'guest-name';
-    item.textContent = name;
-    list.insertBefore(item, list.firstChild);
+    const slotRect = slot.getBoundingClientRect();
+    const endX = slotRect.left + slotRect.width / 2;
+    const endY = slotRect.top + slotRect.height / 2;
 
-    blessings.push(name);
+    const effect = document.createElement('div');
+    effect.className = 'catch-effect';
+    effect.textContent = guestName;
+    effect.style.left = (petalRect.left + petalRect.width / 2) + 'px';
+    effect.style.top = (petalRect.top + petalRect.height / 2) + 'px';
+    document.body.appendChild(effect);
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            effect.style.left = endX + 'px';
+            effect.style.top = endY + 'px';
+            effect.classList.add('is-flying');
+        });
+    });
+
+    let finished = false;
+    const finish = () => {
+        if (finished) return;
+        finished = true;
+        effect.remove();
+        slot.classList.remove('is-slot');
+    };
+
+    effect.addEventListener('transitionend', (e) => {
+        if (e.propertyName === 'left' || e.propertyName === 'top') {
+            finish();
+        }
+    });
+    setTimeout(finish, 850);
 }
 
 // ==================== 角色控制系统 ====================
 
 let characterX = 50;
-let score = 0;
 let targetX = 50;
 let currentFrame = 0;
 let lastX = 50;
@@ -245,14 +254,6 @@ const moveSpeed = 0.8;
 function initCharacterControl() {
     const character = document.getElementById('character');
     if (!character) return;
-
-    const scoreBoard = document.createElement('div');
-    scoreBoard.className = 'score-board';
-    scoreBoard.innerHTML = `
-        <div class="score-label">接到花瓣</div>
-        <div class="score-value" id="scoreValue">0</div>
-    `;
-    document.body.appendChild(scoreBoard);
 
     setInterval(findNearestPetal, 50);
     setInterval(moveToTarget, 30);
@@ -438,29 +439,13 @@ function catchPetal(petal, petalRect) {
     activePetal = null;
     waitingForCatch = false;
 
-    score++;
-    const scoreValue = document.getElementById('scoreValue');
-    if (scoreValue) {
-        scoreValue.textContent = score;
-    }
-
-    // 名单只显示姓名，不显示礼金
-    addGuestToBoard(guestName);
-
     if (characterState === 'waiting' || characterState === 'puttingDown') {
         characterState = 'pickingUp';
         currentFrame = Math.max(currentFrame, basketUpStart);
     }
 
-    const effect = document.createElement('div');
-    effect.className = 'catch-effect';
-    effect.textContent = `🌸 ${guestName}`;
-    effect.style.left = petalRect.left + 'px';
-    effect.style.top = petalRect.top + 'px';
-    document.body.appendChild(effect);
-
-    setTimeout(() => effect.remove(), 1000);
+    flyGuestTagToBoard(guestName, petalRect);
 
     // 接到后稍等再落下一片
-    setTimeout(() => spawnNextPetal(), 800);
+    setTimeout(() => spawnNextPetal(), 900);
 }

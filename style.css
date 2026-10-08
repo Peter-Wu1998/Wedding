@@ -8,22 +8,8 @@
     -ms-user-select: none;
 }
 
-/* GBA火焰之纹章风格像素字�?*/
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-/* 导入粗体像素字体 - Silkscreen 粗体清晰 */
-@font-face {
-    font-family: 'Pixeloid Sans';
-    src: url('https://cdn.jsdelivr.net/gh/GGBotNet/Pixeloid@main/PixeloidSans.ttf') format('truetype');
-    font-weight: normal;
-}
-@font-face {
-    font-family: 'Pixeloid Sans';
-    src: url('https://cdn.jsdelivr.net/gh/GGBotNet/Pixeloid@main/PixeloidSans-Bold.ttf') format('truetype');
-    font-weight: bold;
-}
-
 body {
-    font-family: 'Pixeloid Sans', 'Press Start 2P', 'Courier New', monospace;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
     background: #1a1a2e;
     min-height: 100vh;
     min-height: 100dvh;
@@ -43,7 +29,7 @@ body {
     margin: 0 auto;
 }
 
-/* 资源加载页 */
+/* 资源加载�?*/
 .loading-screen {
     position: fixed;
     inset: 0;
@@ -216,7 +202,7 @@ body {
 .open-btn {
     padding: 1rem 2rem;
     font-size: 1.4rem;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
+    font-family: inherit;
     background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
     color: #000;
     border: 4px solid #000;
@@ -268,7 +254,7 @@ body {
     to { opacity: 1; }
 }
 
-/* 主内容 - GBA风格 */
+/* 主内�?- GBA风格 */
 .main-content {
     display: flex;
     padding: 1rem 1rem 7.5rem;
@@ -280,7 +266,7 @@ body {
     gap: 0.85rem;
 }
 
-/* 给落花瓣留出的游戏空间 */
+/* 给落花瓣留出的游戏空�?*/
 .play-space {
     flex: 1;
     min-height: 42vh;
@@ -479,18 +465,12 @@ body {
     box-shadow:
         inset 1px 1px 0 rgba(255, 255, 255, 0.6),
         2px 2px 0 #000;
-    animation: guestNameIn 0.45s steps(5);
 }
 
-@keyframes guestNameIn {
-    from {
-        transform: scale(0.6);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
+/* 飞行途中的占位：占住落点，本身先隐形 */
+.guest-name.is-slot {
+    opacity: 0;
+    pointer-events: none;
 }
 
 /* GBA风格倒计�?*/
@@ -542,7 +522,7 @@ body {
 .map-btn {
     padding: 1rem 2rem;
     font-size: 1.2rem;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
+    font-family: inherit;
     background: linear-gradient(180deg, #5a9 0%, #2a7 100%);
     color: #fff;
     border: 4px solid #000;
@@ -597,124 +577,75 @@ body {
 .petal {
     position: absolute;
     top: -20px;
-    opacity: 0.96;
-    filter: saturate(1.15) contrast(1.08);
+    opacity: 0.8;
     animation-timing-function: linear;
 }
 
-.petal::before {
-    content: '';
-    position: absolute;
-    inset: 22% 42% 26% 42%;
-    border-radius: 50%;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 180, 210, 0.08) 45%,
-        rgba(180, 40, 90, 0.2) 100%
-    );
-    pointer-events: none;
-}
-
-.petal::after {
-    content: '';
-    position: absolute;
-    top: 14%;
-    left: 22%;
-    width: 32%;
-    height: 20%;
-    border-radius: 50%;
-    background: radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 0.28) 0%,
-        rgba(255, 255, 255, 0.06) 55%,
-        transparent 100%
-    );
-    pointer-events: none;
-}
-
-/* 花瓣类型1：樱花 — 圆润带缺口 */
+/* 花瓣类型1：樱花 */
 .petal.type1 {
     width: 12px;
     height: 20px;
-    background:
-        radial-gradient(ellipse at 35% 25%, rgba(255, 255, 255, 0.22) 0%, transparent 45%),
-        linear-gradient(145deg, #ffd0e8 0%, #ff9ec8 38%, #ff6ba3 72%, #e8457a 100%);
+    background: linear-gradient(135deg, #ffb6d9 0%, #ff85b8 50%, #ff6ba3 100%);
     border-radius: 50% 0 50% 50%;
     box-shadow:
-        inset -2px -3px 6px rgba(190, 40, 90, 0.55),
-        inset 2px 2px 4px rgba(255, 255, 255, 0.28),
-        0 3px 6px rgba(0, 0, 0, 0.28),
-        0 1px 2px rgba(255, 120, 160, 0.25);
+        inset -2px -3px 5px rgba(255, 105, 150, 0.6),
+        inset 2px 2px 5px rgba(255, 255, 255, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* 花瓣类型2：玫瑰 — 椭圆 */
+/* 花瓣类型2：玫瑰 */
 .petal.type2 {
     width: 14px;
     height: 22px;
-    background:
-        radial-gradient(ellipse at 40% 20%, rgba(255, 255, 255, 0.22) 0%, transparent 40%),
-        linear-gradient(185deg, #ff7aa8 0%, #ff5f96 35%, #ff8fb8 65%, #ffc4dc 100%);
+    background: linear-gradient(180deg, #ff6b9d 0%, #ff85b8 40%, #ffb6d9 80%, #ffd1e8 100%);
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
     box-shadow:
-        inset 1px 3px 5px rgba(255, 255, 255, 0.25),
-        inset -2px -3px 6px rgba(200, 30, 80, 0.45),
-        0 3px 7px rgba(0, 0, 0, 0.3),
-        0 1px 2px rgba(255, 100, 150, 0.28);
+        inset 1px 3px 6px rgba(255, 255, 255, 0.5),
+        inset -1px -2px 5px rgba(255, 60, 120, 0.4),
+        0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* 花瓣类型3：梅花 — 纵向椭圆 */
+/* 花瓣类型3：梅花 */
 .petal.type3 {
     width: 13px;
     height: 18px;
-    background:
-        radial-gradient(ellipse at 40% 28%, #ffe8f0 0%, #ffc4dc 28%, #ff85b8 62%, #e84d7a 100%);
+    background: radial-gradient(ellipse at 40% 30%, #ffe0ec 0%, #ffb6d9 30%, #ff85b8 70%, #ff6b9d 100%);
     border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
     box-shadow:
-        inset 2px 2px 4px rgba(255, 255, 255, 0.28),
-        inset -2px -3px 5px rgba(200, 50, 100, 0.5),
-        0 3px 6px rgba(0, 0, 0, 0.28),
-        0 1px 2px rgba(255, 130, 170, 0.25);
+        inset 2px 2px 4px rgba(255, 255, 255, 0.6),
+        inset -2px -2px 4px rgba(255, 80, 130, 0.5),
+        0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* 花瓣类型4：桃花 — 水滴 */
+/* 花瓣类型4：桃花 */
 .petal.type4 {
     width: 11px;
     height: 19px;
-    background:
-        radial-gradient(ellipse at 30% 22%, rgba(255, 255, 255, 0.2) 0%, transparent 42%),
-        linear-gradient(155deg, #ff8fb0 0%, #ff6b9d 42%, #ffb0cc 78%, #ffe0ec 100%);
+    background: linear-gradient(160deg, #ff7aa5 0%, #ff99bb 40%, #ffcce0 100%);
     border-radius: 50% 50% 50% 0;
     box-shadow:
-        inset 2px 2px 4px rgba(255, 255, 255, 0.25),
-        inset -1px -3px 5px rgba(190, 40, 90, 0.5),
-        0 3px 6px rgba(0, 0, 0, 0.28),
-        0 1px 2px rgba(255, 110, 155, 0.25);
+        inset 3px 2px 5px rgba(255, 255, 255, 0.5),
+        inset -1px -2px 4px rgba(255, 70, 110, 0.5),
+        0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* 花瓣类型5：牡丹 — 长椭圆 */
+/* 花瓣类型5：牡丹 */
 .petal.type5 {
     width: 15px;
     height: 23px;
-    background:
-        radial-gradient(ellipse at 38% 18%, rgba(255, 255, 255, 0.22) 0%, transparent 38%),
-        linear-gradient(175deg, #ff4f86 0%, #ff6b9d 28%, #ff9ec8 58%, #ffd1e8 100%);
+    background: linear-gradient(180deg, #ff5a8a 0%, #ff85b8 30%, #ffb6d9 60%, #ffd1e8 100%);
     border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
     box-shadow:
-        inset 1px 3px 5px rgba(255, 255, 255, 0.25),
-        inset -2px -4px 6px rgba(180, 30, 80, 0.45),
-        0 4px 8px rgba(0, 0, 0, 0.32),
-        0 1px 2px rgba(255, 90, 140, 0.28);
+        inset 1px 3px 6px rgba(255, 255, 255, 0.6),
+        inset -1px -3px 5px rgba(255, 50, 100, 0.4),
+        0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* 花瓣飘落动画 — 保留 --petal-scale（按礼金比例） */
 @keyframes fall {
     0% {
         transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
-        opacity: 0.96;
-    }
-    75% {
-        opacity: 0.92;
+        opacity: 0.8;
     }
     100% {
         transform: translateY(100vh) rotate(360deg) scale(var(--petal-scale, 1));
@@ -725,10 +656,7 @@ body {
 @keyframes fall2 {
     0% {
         transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
-        opacity: 0.96;
-    }
-    75% {
-        opacity: 0.92;
+        opacity: 0.8;
     }
     100% {
         transform: translateY(100vh) rotate(-360deg) scale(var(--petal-scale, 1));
@@ -739,10 +667,7 @@ body {
 @keyframes fall3 {
     0% {
         transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
-        opacity: 0.96;
-    }
-    75% {
-        opacity: 0.92;
+        opacity: 0.8;
     }
     100% {
         transform: translateY(100vh) rotate(720deg) scale(calc(var(--petal-scale, 1) * 0.9));
@@ -753,10 +678,7 @@ body {
 @keyframes fall4 {
     0% {
         transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
-        opacity: 0.96;
-    }
-    75% {
-        opacity: 0.92;
+        opacity: 0.8;
     }
     100% {
         transform: translateY(100vh) rotate(180deg) scale(var(--petal-scale, 1));
@@ -767,10 +689,7 @@ body {
 @keyframes fall5 {
     0% {
         transform: translateY(0) rotate(0deg) rotateX(0deg) scale(var(--petal-scale, 1));
-        opacity: 0.96;
-    }
-    75% {
-        opacity: 0.92;
+        opacity: 0.8;
     }
     100% {
         transform: translateY(100vh) rotate(360deg) rotateX(360deg) scale(var(--petal-scale, 1));
@@ -841,29 +760,13 @@ body {
         height: 240px;
     }
 
-    .score-board {
-        top: 8px;
-        right: 8px;
-        padding: 0.4rem 0.55rem;
-        font-size: 0.7rem;
-        z-index: 10001;
-    }
-
-    .score-board .score-label {
-        font-size: 0.5rem;
-        margin-bottom: 0.15rem;
-    }
-
-    .score-board .score-value {
-        font-size: 1.35rem;
-    }
-
     .catch-effect {
-        font-size: 1.4rem;
+        font-size: 0.62rem;
+        padding: 0.28rem 0.5rem;
     }
 }
 
-/* 很窄的手机 */
+/* 很窄的手�?*/
 @media (max-width: 380px) {
     .name {
         font-size: 1.05rem;
@@ -932,64 +835,33 @@ body {
 }
 
 
-/* 接到花瓣的特�?- GBA风格 */
+/* 接到花瓣：从接住处平移到名单对应格子 */
 .catch-effect {
     position: fixed;
-    font-size: 2.4rem;
     pointer-events: none;
-    animation: gbaCatchEffect 0.8s steps(4) forwards;
     z-index: 10001;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
-    color: #ffd700;
-    text-shadow: 
-        2px 2px 0px #000,
-        -1px -1px 0px #000,
-        1px -1px 0px #000,
-        -1px 1px 0px #000;
-}
-
-@keyframes gbaCatchEffect {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-60px) scale(1.5);
-    }
-}
-
-/* 计分�?- GBA风格 */
-.score-board {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-    padding: 0.8rem 1.2rem;
-    border: 4px solid #000;
-    box-shadow: 
-        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
-        inset 2px 2px 0px rgba(255, 255, 255, 0.1),
-        4px 4px 0px #000;
-    z-index: 10000;
-    font-size: 1rem;
-    color: #ffd700;
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    background: linear-gradient(180deg, #fff0f5 0%, #ffd0e0 100%);
+    border: 2px solid #000;
+    color: #c41e3a;
+    font-size: 0.72rem;
     font-weight: bold;
-    text-shadow: 1px 1px 0px #000;
+    font-family: inherit;
+    white-space: nowrap;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+        2px 2px 0 #000;
+    transform: translate(-50%, -50%) scale(1.15);
+    transition:
+        left 0.75s cubic-bezier(0.22, 0.61, 0.36, 1),
+        top 0.75s cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 0.75s cubic-bezier(0.22, 0.61, 0.36, 1);
+    opacity: 1;
 }
 
-.score-board .score-label {
-    font-size: 0.8rem;
-    color: #ffa500;
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-.score-board .score-value {
-    font-size: 3rem;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    color: #ffd700;
+.catch-effect.is-flying {
+    transform: translate(-50%, -50%) scale(1);
 }
 
 /* 祝福按钮 - GBA风格 */
@@ -999,7 +871,7 @@ body {
     right: 200px;
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
+    font-family: inherit;
     background: linear-gradient(180deg, #ff69b4 0%, #c41e3a 100%);
     color: #fff;
     border: 4px solid #000;
@@ -1116,7 +988,7 @@ body {
     padding: 0.8rem;
     border: 3px solid #000;
     background: #e8e8e8;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
+    font-family: inherit;
     font-size: 0.7rem;
     box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.2);
 }
@@ -1130,7 +1002,7 @@ body {
     width: 100%;
     padding: 1rem;
     font-size: 1rem;
-    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
+    font-family: inherit;
     background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
     color: #000;
     border: 4px solid #000;
@@ -1152,7 +1024,7 @@ body {
         2px 2px 0px #000;
 }
 
-/* 宽屏留白与间距 */
+/* 宽屏留白与间�?*/
 @media (min-width: 769px) {
     .guest-list {
         max-height: 320px;
