@@ -1,7 +1,12 @@
 // 宾客名单（礼金只用于花瓣大小，不展示）
 const guests = [
+    { name: '伍艾红', amount: 1 },
+    { name: '周竹花', amount: 1 },
+    { name: '吴方才', amount: 1 },
+    { name: '金晓平', amount: 1 },
+    { name: '吴均涛', amount: 0 },
     { name: '徐四斌&严可', amount: 1000 },
-    { name: '王正波', amount: 1000 },
+    { name: '王正波&童慧敏', amount: 1000 },
     { name: '郎晓炜', amount: 500 },
     { name: '叶茂&鲍雨丽', amount: 666 },
     { name: '卢金鹏', amount: 600 },
@@ -15,21 +20,27 @@ const guests = [
     { name: '王秋实', amount: 1000 },
     { name: '周千湘', amount: 1000 },
     { name: '彭胜男&黄格格', amount: 600 },
-    { name: '涂允灿', amount: 600 },
+    { name: '秦颖杰&涂允灿', amount: 600 },
     { name: '吴莎莎', amount: 600 },
     { name: '施雅雯', amount: 600 },
-    { name: '伍爱华', amount: 2000 },
+    { name: '伍艾华', amount: 2000 },
     { name: '伍良友', amount: 400 },
     { name: '伍大平', amount: 1600 },
     { name: '张会珍', amount: 800 },
     { name: '张赛', amount: 800 },
-    { name: '周云春', amount: 2000 },
+    { name: '周元春', amount: 2000 },
+    { name: '周云', amount: 0 },
     { name: '周云群', amount: 2000 },
+    { name: '周涛', amount: 0 },
     { name: '周万春', amount: 2000 },
     { name: '周元景', amount: 2000 },
+    { name: '马海峰', amount: 0 },
     { name: '夏文洁', amount: 1000 },
+    { name: '夏文君', amount: 0 },
     { name: '厉海峰', amount: 800 },
     { name: '厉慧', amount: 800 },
+    { name: '厉恒', amount: 0 },
+    { name: '王菲', amount: 0 },
     { name: '厉宽余', amount: 800 },
     { name: '厉爱月', amount: 800 },
     { name: '厉保', amount: 1800 },
@@ -66,10 +77,19 @@ const guests = [
     { name: '汪院生', amount: 600 }
 ];
 
-const minGift = Math.min(...guests.map(g => g.amount));
-const maxGift = Math.max(...guests.map(g => g.amount));
+// 0/1 为特殊标记，不参与礼金缩放
+const normalGifts = guests.map(g => g.amount).filter(a => a > 1);
+const minGift = Math.min(...normalGifts);
+const maxGift = Math.max(...normalGifts);
 const minPetalScale = 0.9;
 const maxPetalScale = 3.2;
+const specialPetalScale = 1.5;
+
+function specialStyleClass(amount) {
+    if (amount === 1) return 'special-red';
+    if (amount === 0) return 'special-blue';
+    return '';
+}
 
 let remainingGuests = [];
 let blessings = [];
@@ -79,11 +99,15 @@ let waitingForCatch = false;
 let listFinished = false;
 
 function shuffleGuests() {
-    remainingGuests = [...guests];
-    for (let i = remainingGuests.length - 1; i > 0; i--) {
+    // 红色（amount=1）按名单顺序优先落下；其余随机
+    const reds = guests.filter(g => g.amount === 1);
+    const others = guests.filter(g => g.amount !== 1);
+    for (let i = others.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [remainingGuests[i], remainingGuests[j]] = [remainingGuests[j], remainingGuests[i]];
+        [others[i], others[j]] = [others[j], others[i]];
     }
+    // pop 从末尾取，所以红色倒序放在末尾 → 先出名单靠前的红色
+    remainingGuests = [...others, ...reds.slice().reverse()];
 }
 
 function pickNextGuest() {
@@ -93,7 +117,12 @@ function pickNextGuest() {
     return remainingGuests.pop();
 }
 
+function guestOrderIndex(name) {
+    return guests.findIndex(g => g.name === name);
+}
+
 function giftToScale(amount) {
+    if (amount <= 1) return specialPetalScale;
     if (maxGift === minGift) return (minPetalScale + maxPetalScale) / 2;
     const t = (amount - minGift) / (maxGift - minGift);
     return minPetalScale + t * (maxPetalScale - minPetalScale);
@@ -193,18 +222,19 @@ function spawnNextPetal(guestOverride) {
 
     const petal = document.createElement('div');
     const petalType = Math.floor(Math.random() * 5) + 1;
-    petal.className = `petal type${petalType}`;
+    const specialClass = specialStyleClass(guest.amount);
+    petal.className = `petal type${petalType}${specialClass ? ` ${specialClass}` : ''}`;
     petal.dataset.guestName = guest.name;
     petal.dataset.guestAmount = String(guest.amount);
 
     // 左右留边，方便角色赶到
     petal.style.left = Math.random() * 70 + 15 + '%';
 
-    // 手机稍慢一点，提高接住率
+    // 下落加快；人物速度同步提高，保证能接到
     const isMobile = window.matchMedia('(max-width: 768px)').matches;
     const duration = isMobile
-        ? Math.random() * 1.5 + 5.5 // 5.5-7秒
-        : Math.random() * 2 + 4.5;  // 4.5-6.5秒
+        ? Math.random() * 1 + 3.2 // 3.2-4.2秒
+        : Math.random() * 1 + 2.8; // 2.8-3.8秒
     petal.style.animationDuration = duration + 's';
     petal.style.animationDelay = '0s';
 
@@ -245,15 +275,35 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 // ==================== 衷心感谢 · 名单 ====================
 
-function flyGuestTagToBoard(guestName, petalRect) {
-    const list = document.getElementById('guestList');
+function insertGuestSlot(list, slot, guestName, isRed) {
+    if (isRed) {
+        // 红色行：始终按名单顺序插入
+        const order = guestOrderIndex(guestName);
+        const siblings = [...list.children];
+        const before = siblings.find(el => guestOrderIndex(el.textContent) > order);
+        if (before) {
+            list.insertBefore(slot, before);
+        } else {
+            list.appendChild(slot);
+        }
+    } else {
+        list.insertBefore(slot, list.firstChild);
+    }
+}
+
+function flyGuestTagToBoard(guestName, petalRect, amount) {
+    const amountNum = Number(amount);
+    const isRed = amountNum === 1;
+    const list = document.getElementById(isRed ? 'guestListRed' : 'guestList');
     if (!list) return;
+
+    const specialClass = specialStyleClass(amountNum);
 
     // 先在名单里占位，拿到真正落点（不瞬移刷新）
     const slot = document.createElement('span');
-    slot.className = 'guest-name is-slot';
+    slot.className = `guest-name is-slot${specialClass ? ` ${specialClass}` : ''}`;
     slot.textContent = guestName;
-    list.insertBefore(slot, list.firstChild);
+    insertGuestSlot(list, slot, guestName, isRed);
     blessings.push(guestName);
 
     const slotRect = slot.getBoundingClientRect();
@@ -261,7 +311,7 @@ function flyGuestTagToBoard(guestName, petalRect) {
     const endY = slotRect.top + slotRect.height / 2;
 
     const effect = document.createElement('div');
-    effect.className = 'catch-effect';
+    effect.className = `catch-effect${specialClass ? ` ${specialClass}` : ''}`;
     effect.textContent = guestName;
     effect.style.left = (petalRect.left + petalRect.width / 2) + 'px';
     effect.style.top = (petalRect.top + petalRect.height / 2) + 'px';
@@ -308,8 +358,8 @@ let characterState = 'idle';
 let hasNearbyPetal = false;
 
 const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
-// 手机提高追赶速度，减少接不到
-const moveSpeed = () => (isMobileView() ? 1.8 : 1.2);
+// 花瓣加快后，人物追赶也加快，保证能接到
+const moveSpeed = () => (isMobileView() ? 2.8 : 2.2);
 
 function initCharacterControl() {
     const character = document.getElementById('character');
@@ -515,6 +565,7 @@ function catchPetal(petal, petalRect) {
     }
 
     const guestName = petal.dataset.guestName || '宾客';
+    const guestAmount = Number(petal.dataset.guestAmount);
     petal.remove();
     activePetal = null;
     waitingForCatch = false;
@@ -525,7 +576,7 @@ function catchPetal(petal, petalRect) {
     currentFrame = idleFrame;
     targetX = characterX;
 
-    flyGuestTagToBoard(guestName, petalRect);
+    flyGuestTagToBoard(guestName, petalRect, guestAmount);
 
     // 接到后稍等再落下一片
     setTimeout(() => spawnNextPetal(), 900);

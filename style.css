@@ -476,6 +476,23 @@ body {
     overflow: visible !important;
 }
 
+/* 红色特殊名单：单独一行，置顶 */
+.guest-list-red {
+    flex-wrap: nowrap;
+    justify-content: center;
+    margin-bottom: 0.55rem;
+    min-height: 0;
+}
+
+.guest-list-red:empty {
+    display: none;
+    margin-bottom: 0;
+}
+
+.guest-list-red .guest-name {
+    flex: 0 0 auto;
+}
+
 .guest-name {
     display: inline-block;
     padding: 0.35rem 0.7rem;
@@ -661,6 +678,35 @@ body {
         inset 1px 3px 6px rgba(255, 255, 255, 0.6),
         inset -1px -3px 5px rgba(255, 50, 100, 0.4),
         0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* 特殊名单：amount=1 红 / amount=0 蓝 */
+.petal.special-red {
+    background: linear-gradient(160deg, #ff8a8a 0%, #ff3b3b 45%, #c41212 100%) !important;
+    box-shadow:
+        inset 2px 2px 5px rgba(255, 255, 255, 0.45),
+        inset -2px -3px 5px rgba(120, 0, 0, 0.45),
+        0 2px 5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.petal.special-blue {
+    background: linear-gradient(160deg, #9ec9ff 0%, #3b7dff 45%, #1a4fbf 100%) !important;
+    box-shadow:
+        inset 2px 2px 5px rgba(255, 255, 255, 0.45),
+        inset -2px -3px 5px rgba(0, 40, 120, 0.45),
+        0 2px 5px rgba(0, 0, 0, 0.3) !important;
+}
+
+.guest-name.special-red,
+.catch-effect.special-red {
+    background: linear-gradient(180deg, #ffe0e0 0%, #ff6b6b 100%);
+    color: #8b0000;
+}
+
+.guest-name.special-blue,
+.catch-effect.special-blue {
+    background: linear-gradient(180deg, #e0ecff 0%, #6ba3ff 100%);
+    color: #0b3d91;
 }
 
 /* 花瓣飘落动画 — 保留 --petal-scale（按礼金比例） */
