@@ -12,7 +12,6 @@
   - 花瓣大小按礼金比例缩放（金额只用于大小，页面不显示）
 - **加载页**：预加载全部角色动画帧后再开始互动
 - **系统字体**：使用本机中文字体，不依赖在线字体 CDN
-- **背景音乐**：本地《A Thousand Years》（`a-thousand-years.mp3`），右上角可开关；首次点击页面后开始播放
 - **手机竖屏适配**：针对竖屏排版，便于转发分享
 
 ## 文件结构
@@ -23,7 +22,6 @@ Wedding/
 ├── style.css       # 样式
 ├── script.js       # 逻辑（名单、花瓣、角色、飞入动画）
 ├── frames/         # 角色动画帧 frame_0000.png ~ frame_0060.png（共 61 帧）
-├── a-thousand-years.mp3  # 背景音乐
 ├── 名单            # 宾客姓名与礼金（对照参考，实际以 script.js 为准）
 └── README.md
 ```
@@ -72,7 +70,6 @@ const guests = [
 | 花瓣下落速度 | `script.js` → `duration`（当前约 4–6 秒） |
 | 花瓣大小范围 | `script.js` → `minPetalScale` / `maxPetalScale` |
 | 角色帧数 | `script.js` → `TOTAL_FRAMES`（需与 `frames/` 一致） |
-| 背景音乐 | `a-thousand-years.mp3`，或改 `script.js` → `BGM_URL` |
 
 ## 技术栈
 
@@ -80,7 +77,7 @@ const guests = [
 
 ## 注意事项
 
-1. 部署时必须上传 `frames/` 和 `a-thousand-years.mp3`
+1. 部署时必须上传 `frames/`，否则角色动画无法显示
 2. 建议在手机竖屏下确认排版与接花瓣体验
 3. 页面上的姓名不会显示礼金金额，请勿把金额写进文案
 

@@ -155,66 +155,6 @@ function hideLoadingScreen() {
     }, 450);
 }
 
-// 《A Thousand Years》本地音频
-const BGM_URL = 'a-thousand-years.mp3';
-
-let bgmEnabled = false;
-
-function initBgm() {
-    const audio = document.getElementById('bgm');
-    const btn = document.getElementById('musicBtn');
-    if (!audio || !btn) return;
-
-    audio.src = BGM_URL;
-    audio.volume = 0.55;
-    btn.hidden = false;
-    btn.classList.add('is-off');
-    btn.addEventListener('click', toggleBgm);
-
-    // 浏览器通常禁止自动播放，首次点击页面时尝试开启
-    const unlock = () => {
-        playBgm();
-        document.removeEventListener('pointerdown', unlock);
-    };
-    document.addEventListener('pointerdown', unlock, { once: true });
-}
-
-function playBgm() {
-    const audio = document.getElementById('bgm');
-    const btn = document.getElementById('musicBtn');
-    if (!audio) return;
-
-    audio.play().then(() => {
-        bgmEnabled = true;
-        btn?.classList.remove('is-off');
-        btn?.classList.add('is-on');
-        const icon = document.getElementById('musicBtnIcon');
-        if (icon) icon.textContent = '♪';
-    }).catch(() => {
-        bgmEnabled = false;
-        btn?.classList.add('is-off');
-        btn?.classList.remove('is-on');
-    });
-}
-
-function pauseBgm() {
-    const audio = document.getElementById('bgm');
-    const btn = document.getElementById('musicBtn');
-    if (!audio) return;
-    audio.pause();
-    bgmEnabled = false;
-    btn?.classList.add('is-off');
-    btn?.classList.remove('is-on');
-}
-
-function toggleBgm() {
-    if (bgmEnabled && !document.getElementById('bgm')?.paused) {
-        pauseBgm();
-    } else {
-        playBgm();
-    }
-}
-
 // 资源就绪后进入答谢页
 function startThankYouPage() {
     document.getElementById('app')?.removeAttribute('hidden');
@@ -223,7 +163,6 @@ function startThankYouPage() {
 
     shuffleGuests();
     initCharacterControl();
-    initBgm();
     spawnNextPetal();
     hideLoadingScreen();
 }
