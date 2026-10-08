@@ -8,12 +8,20 @@
     -ms-user-select: none;
 }
 
+html {
+    height: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 body {
     font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
     background: #1a1a2e;
     min-height: 100vh;
     min-height: 100dvh;
+    height: auto;
     overflow-x: hidden;
+    overflow-y: auto;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
@@ -27,6 +35,44 @@ body {
 .container {
     max-width: 100%;
     margin: 0 auto;
+    height: auto;
+    overflow: visible;
+}
+
+/* 音乐开关 */
+.music-btn {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 10050;
+    width: 44px;
+    height: 44px;
+    border: 3px solid #000;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #fff5f8 0%, #ffd0e0 100%);
+    color: #c41e3a;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.music-btn.is-off {
+    opacity: 0.75;
+    filter: grayscale(0.35);
+}
+
+.music-btn.is-on .music-btn-icon {
+    animation: musicPulse 1s steps(2) infinite;
+}
+
+@keyframes musicPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
 }
 
 /* 资源加载�?*/
@@ -254,22 +300,24 @@ body {
     to { opacity: 1; }
 }
 
-/* 主内�?- GBA风格 */
+/* 主内容 */
 .main-content {
     display: flex;
     padding: 1rem 1rem 7.5rem;
     max-width: 800px;
     margin: 0 auto;
     min-height: 100vh;
+    height: auto;
     box-sizing: border-box;
     flex-direction: column;
     gap: 0.85rem;
+    overflow: visible;
 }
 
-/* 给落花瓣留出的游戏空�?*/
+/* 游戏区：不再 flex:1 挤压上方名单盒子 */
 .play-space {
-    flex: 1;
-    min-height: 42vh;
+    flex: 0 0 auto;
+    min-height: 28vh;
     width: 100%;
 }
 
@@ -298,6 +346,10 @@ body {
         inset 2px 2px 0px rgba(255, 255, 255, 0.5),
         6px 6px 0px #000;
     position: relative;
+    flex-shrink: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
 }
 
 /* GBA风格标题�?*/
@@ -433,9 +485,13 @@ body {
     text-align: center;
 }
 
-/* 衷心感谢 · 名单 */
+/* 衷心感谢 · 名单（高度随标签自动向下扩展） */
 .guest-board {
     text-align: center;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    flex: 0 0 auto;
 }
 
 .guest-hint {
@@ -449,9 +505,11 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-content: flex-start;
     gap: 0.45rem 0.55rem;
-    max-height: min(28vh, 240px);
-    overflow: hidden;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
 }
 
 .guest-name {
@@ -736,7 +794,8 @@ body {
     }
 
     .guest-list {
-        max-height: min(26vh, 200px);
+        max-height: none;
+        overflow: visible;
         gap: 0.35rem 0.4rem;
     }
 
@@ -746,7 +805,14 @@ body {
     }
 
     .play-space {
-        min-height: 36vh;
+        flex: 0 0 auto;
+        min-height: 22vh;
+    }
+
+    .love-message.guest-board {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
 
     .character {
@@ -1027,7 +1093,8 @@ body {
 /* 宽屏留白与间�?*/
 @media (min-width: 769px) {
     .guest-list {
-        max-height: 320px;
+        max-height: none;
+        overflow: visible;
         gap: 0.55rem 0.7rem;
     }
 
@@ -1037,11 +1104,14 @@ body {
     }
 
     .play-space {
-        min-height: 38vh;
+        flex: 0 0 auto;
+        min-height: 28vh;
     }
 
     .main-content {
         padding: 2rem 1rem 8rem;
+        height: auto;
+        overflow: visible;
     }
 }
 

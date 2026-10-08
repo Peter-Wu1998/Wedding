@@ -1,24 +1,69 @@
 // 宾客名单（礼金只用于花瓣大小，不展示）
 const guests = [
-    { name: '徐四斌', amount: 1000 },
+    { name: '徐四斌&严可', amount: 1000 },
     { name: '王正波', amount: 1000 },
     { name: '郎晓炜', amount: 500 },
-    { name: '蔡新生', amount: 600 },
-    { name: '王秋实', amount: 1000 },
-    { name: '周千湘', amount: 1000 },
-    { name: '彭胜男', amount: 600 },
-    { name: '涂允灿', amount: 600 },
-    { name: '吴莎莎', amount: 600 },
-    { name: '施雅文', amount: 600 },
-    { name: '鲍雨丽', amount: 666 },
+    { name: '叶茂&鲍雨丽', amount: 666 },
     { name: '卢金鹏', amount: 600 },
     { name: '张驰', amount: 200 },
     { name: '王洪宇', amount: 600 },
+    { name: '王宇', amount: 600 },
     { name: '夏永进', amount: 600 },
     { name: '尤鑫', amount: 600 },
     { name: '刘文豪', amount: 1000 },
+    { name: '蔡新生', amount: 600 },
+    { name: '王秋实', amount: 1000 },
+    { name: '周千湘', amount: 1000 },
+    { name: '彭胜男&黄格格', amount: 600 },
+    { name: '涂允灿', amount: 600 },
+    { name: '吴莎莎', amount: 600 },
+    { name: '施雅雯', amount: 600 },
+    { name: '伍爱华', amount: 2000 },
+    { name: '伍良友', amount: 400 },
+    { name: '伍大平', amount: 1600 },
+    { name: '张会珍', amount: 800 },
+    { name: '张赛', amount: 800 },
+    { name: '周云春', amount: 2000 },
+    { name: '周云群', amount: 2000 },
+    { name: '周万春', amount: 2000 },
+    { name: '周元景', amount: 2000 },
+    { name: '夏文洁', amount: 1000 },
+    { name: '厉海峰', amount: 800 },
+    { name: '厉慧', amount: 800 },
+    { name: '厉宽余', amount: 800 },
+    { name: '厉爱月', amount: 800 },
+    { name: '厉保', amount: 1800 },
+    { name: '厉凤丹', amount: 800 },
+    { name: '厉宽四', amount: 1000 },
+    { name: '厉丁香', amount: 800 },
+    { name: '朱丽', amount: 600 },
+    { name: '朱江', amount: 600 },
+    { name: '朱赛', amount: 800 },
+    { name: '朱守武', amount: 800 },
+    { name: '厉玉生', amount: 666 },
     { name: '厉宝强', amount: 420 },
-    { name: '厉根生', amount: 420 }
+    { name: '厉根生', amount: 420 },
+    { name: '张业云', amount: 420 },
+    { name: '厉启冲', amount: 420 },
+    { name: '厉启华', amount: 420 },
+    { name: '厉启干', amount: 420 },
+    { name: '厉启元', amount: 420 },
+    { name: '厉小青', amount: 420 },
+    { name: '厉宽银', amount: 420 },
+    { name: '厉启银', amount: 420 },
+    { name: '费自立', amount: 600 },
+    { name: '张二照', amount: 600 },
+    { name: '厉广州', amount: 600 },
+    { name: '周元红', amount: 800 },
+    { name: '周元正', amount: 600 },
+    { name: '吴学礼', amount: 800 },
+    { name: '吴学广', amount: 600 },
+    { name: '吴大伟', amount: 420 },
+    { name: '周元亮', amount: 800 },
+    { name: '何豹', amount: 800 },
+    { name: '张照生', amount: 1000 },
+    { name: '张照龙', amount: 600 },
+    { name: '汪院生', amount: 600 }
 ];
 
 const minGift = Math.min(...guests.map(g => g.amount));
@@ -31,6 +76,7 @@ let blessings = [];
 let activePetal = null;
 let petalFallTimer = null;
 let waitingForCatch = false;
+let listFinished = false;
 
 function shuffleGuests() {
     remainingGuests = [...guests];
@@ -42,7 +88,7 @@ function shuffleGuests() {
 
 function pickNextGuest() {
     if (remainingGuests.length === 0) {
-        shuffleGuests();
+        return null;
     }
     return remainingGuests.pop();
 }
@@ -109,6 +155,66 @@ function hideLoadingScreen() {
     }, 450);
 }
 
+// 《A Thousand Years》本地音频
+const BGM_URL = 'a-thousand-years.mp3';
+
+let bgmEnabled = false;
+
+function initBgm() {
+    const audio = document.getElementById('bgm');
+    const btn = document.getElementById('musicBtn');
+    if (!audio || !btn) return;
+
+    audio.src = BGM_URL;
+    audio.volume = 0.55;
+    btn.hidden = false;
+    btn.classList.add('is-off');
+    btn.addEventListener('click', toggleBgm);
+
+    // 浏览器通常禁止自动播放，首次点击页面时尝试开启
+    const unlock = () => {
+        playBgm();
+        document.removeEventListener('pointerdown', unlock);
+    };
+    document.addEventListener('pointerdown', unlock, { once: true });
+}
+
+function playBgm() {
+    const audio = document.getElementById('bgm');
+    const btn = document.getElementById('musicBtn');
+    if (!audio) return;
+
+    audio.play().then(() => {
+        bgmEnabled = true;
+        btn?.classList.remove('is-off');
+        btn?.classList.add('is-on');
+        const icon = document.getElementById('musicBtnIcon');
+        if (icon) icon.textContent = '♪';
+    }).catch(() => {
+        bgmEnabled = false;
+        btn?.classList.add('is-off');
+        btn?.classList.remove('is-on');
+    });
+}
+
+function pauseBgm() {
+    const audio = document.getElementById('bgm');
+    const btn = document.getElementById('musicBtn');
+    if (!audio) return;
+    audio.pause();
+    bgmEnabled = false;
+    btn?.classList.add('is-off');
+    btn?.classList.remove('is-on');
+}
+
+function toggleBgm() {
+    if (bgmEnabled && !document.getElementById('bgm')?.paused) {
+        pauseBgm();
+    } else {
+        playBgm();
+    }
+}
+
 // 资源就绪后进入答谢页
 function startThankYouPage() {
     document.getElementById('app')?.removeAttribute('hidden');
@@ -117,12 +223,14 @@ function startThankYouPage() {
 
     shuffleGuests();
     initCharacterControl();
+    initBgm();
     spawnNextPetal();
     hideLoadingScreen();
 }
 
-// 一次只落一片；接到后再落下一片
+// 一次只落一片；接到后再落下一片；名单接完后停止
 function spawnNextPetal(guestOverride) {
+    if (listFinished) return;
     if (waitingForCatch && !guestOverride) return;
 
     const container = document.getElementById('petals');
@@ -137,15 +245,27 @@ function spawnNextPetal(guestOverride) {
     }
 
     const guest = guestOverride || pickNextGuest();
+    if (!guest) {
+        listFinished = true;
+        waitingForCatch = false;
+        activePetal = null;
+        return;
+    }
+
     const petal = document.createElement('div');
     const petalType = Math.floor(Math.random() * 5) + 1;
     petal.className = `petal type${petalType}`;
     petal.dataset.guestName = guest.name;
     petal.dataset.guestAmount = String(guest.amount);
 
-    petal.style.left = Math.random() * 80 + 10 + '%';
+    // 左右留边，方便角色赶到
+    petal.style.left = Math.random() * 70 + 15 + '%';
 
-    const duration = Math.random() * 2 + 4; // 4-6秒
+    // 手机稍慢一点，提高接住率
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const duration = isMobile
+        ? Math.random() * 1.5 + 5.5 // 5.5-7秒
+        : Math.random() * 2 + 4.5;  // 4.5-6.5秒
     petal.style.animationDuration = duration + 's';
     petal.style.animationDelay = '0s';
 
@@ -237,7 +357,6 @@ function flyGuestTagToBoard(guestName, petalRect) {
 let characterX = 50;
 let targetX = 50;
 let currentFrame = 0;
-let lastX = 50;
 
 const idleFrame = 0;
 const basketDownEnd = 15;
@@ -249,16 +368,18 @@ const runEndFrame = 60;
 let characterState = 'idle';
 let hasNearbyPetal = false;
 
-const moveSpeed = 0.8;
+const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
+// 手机提高追赶速度，减少接不到
+const moveSpeed = () => (isMobileView() ? 1.8 : 1.2);
 
 function initCharacterControl() {
     const character = document.getElementById('character');
     if (!character) return;
 
-    setInterval(findNearestPetal, 50);
-    setInterval(moveToTarget, 30);
+    setInterval(findNearestPetal, 40);
+    setInterval(moveToTarget, 24);
     setInterval(updateCharacterAnimation, 50);
-    setInterval(checkPetalCollision, 100);
+    setInterval(checkPetalCollision, 40);
 }
 
 function updateCharacterAnimation() {
@@ -266,13 +387,13 @@ function updateCharacterAnimation() {
     const sprite = document.getElementById('characterSprite');
     if (!sprite) return;
 
-    const movementDelta = characterX - lastX;
-    const isMoving = Math.abs(movementDelta) > 0.5;
+    // 用是否还在追目标判断，避免接住后抖动触发“走一步”
+    const isMoving = Math.abs(targetX - characterX) > 0.8;
 
     if (isMoving) {
-        if (movementDelta < 0) {
+        if (targetX < characterX) {
             character.classList.add('moving-left');
-        } else if (movementDelta > 0) {
+        } else {
             character.classList.remove('moving-left');
         }
     }
@@ -280,10 +401,12 @@ function updateCharacterAnimation() {
     switch (characterState) {
         case 'idle':
             currentFrame = idleFrame;
+            // 有花瓣且已到位：放下篮子等待
             if (hasNearbyPetal && !isMoving) {
                 characterState = 'puttingDown';
                 currentFrame = basketDownEnd;
             } else if (isMoving) {
+                // 需要追花瓣：先举起篮子再跑
                 characterState = 'pickingUp';
                 currentFrame = basketUpStart;
             }
@@ -293,9 +416,10 @@ function updateCharacterAnimation() {
             if (currentFrame > idleFrame) {
                 currentFrame--;
             } else {
-                characterState = 'waiting';
+                characterState = hasNearbyPetal ? 'waiting' : 'idle';
             }
 
+            // 放下中途又要跑了
             if (isMoving) {
                 characterState = 'pickingUp';
                 currentFrame = Math.max(currentFrame, basketUpStart);
@@ -303,20 +427,28 @@ function updateCharacterAnimation() {
             break;
 
         case 'waiting':
+            // 篮子已放下，原地等花瓣
             currentFrame = idleFrame;
 
-            if (isMoving || !hasNearbyPetal) {
+            if (isMoving) {
                 characterState = 'pickingUp';
                 currentFrame = basketUpStart;
+            } else if (!hasNearbyPetal) {
+                // 花瓣已接到/消失：安静站着，不要举篮假跑
+                characterState = 'idle';
             }
             break;
 
         case 'pickingUp':
             if (currentFrame < basketUpEnd) {
                 currentFrame++;
-            } else {
+            } else if (isMoving) {
                 characterState = 'running';
                 currentFrame = runStartFrame;
+            } else {
+                // 举完篮但不用跑了（例如刚接到、下片还没落）：回到待机
+                characterState = 'idle';
+                currentFrame = idleFrame;
             }
             break;
 
@@ -337,12 +469,11 @@ function updateCharacterAnimation() {
     }
 
     sprite.src = `frames/frame_${String(currentFrame).padStart(4, '0')}.png`;
-    lastX = characterX;
 }
 
 function findNearestPetal() {
     const character = document.getElementById('character');
-    if (!character) return;
+    if (!character || listFinished) return;
 
     const characterRect = character.getBoundingClientRect();
     const characterCenterX = characterRect.left + characterRect.width / 2;
@@ -352,23 +483,27 @@ function findNearestPetal() {
     let minDistance = Infinity;
     hasNearbyPetal = false;
 
+    // 更早开始追，给角色更多横向移动时间
+    const seekFrom = window.innerHeight * 0.12;
+    const nearFrom = window.innerHeight * 0.28;
+
     petals.forEach(petal => {
         const petalRect = petal.getBoundingClientRect();
 
-        if (petalRect.top > window.innerHeight * 0.3) {
+        if (petalRect.top > seekFrom) {
             const petalCenterX = petalRect.left + petalRect.width / 2;
 
             const horizontalDist = Math.abs(petalCenterX - characterCenterX);
             const verticalDist = window.innerHeight - petalRect.bottom;
 
-            const priority = horizontalDist + verticalDist * 0.5;
+            const priority = horizontalDist + verticalDist * 0.35;
 
             if (priority < minDistance) {
                 minDistance = priority;
                 nearestPetal = petal;
             }
 
-            if (petalRect.top > window.innerHeight * 0.4) {
+            if (petalRect.top > nearFrom) {
                 hasNearbyPetal = true;
             }
         }
@@ -378,7 +513,7 @@ function findNearestPetal() {
         const petalRect = nearestPetal.getBoundingClientRect();
         const petalCenterX = petalRect.left + petalRect.width / 2;
         targetX = (petalCenterX / window.innerWidth) * 100;
-        targetX = Math.max(5, Math.min(95, targetX));
+        targetX = Math.max(8, Math.min(92, targetX));
     }
 }
 
@@ -387,12 +522,13 @@ function moveToTarget() {
     if (!character) return;
 
     const distance = targetX - characterX;
+    const speed = moveSpeed();
 
-    if (Math.abs(distance) > 0.5) {
+    if (Math.abs(distance) > 0.35) {
         if (distance > 0) {
-            characterX += Math.min(moveSpeed, distance);
+            characterX += Math.min(speed, distance);
         } else {
-            characterX += Math.max(-moveSpeed, distance);
+            characterX += Math.max(-speed, distance);
         }
         character.style.left = characterX + '%';
     }
@@ -400,14 +536,19 @@ function moveToTarget() {
 
 function checkPetalCollision() {
     const character = document.getElementById('character');
-    if (!character) return;
+    if (!character || listFinished) return;
 
     const characterRect = character.getBoundingClientRect();
 
-    const actualCharacterLeft = characterRect.left + 100;
-    const actualCharacterRight = characterRect.right - 100;
-    const actualCharacterTop = characterRect.top + 100;
-    const actualCharacterBottom = characterRect.bottom - 100;
+    // 按角色实际尺寸比例算碰撞区（手机缩放后不能再用固定 100px）
+    const padX = characterRect.width * 0.18;
+    const padY = characterRect.height * 0.15;
+    const hitExpand = isMobileView() ? 28 : 16;
+
+    const hitLeft = characterRect.left + padX - hitExpand;
+    const hitRight = characterRect.right - padX + hitExpand;
+    const hitTop = characterRect.top + padY - hitExpand;
+    const hitBottom = characterRect.bottom - padY + hitExpand;
 
     const petals = document.querySelectorAll('.petal');
     petals.forEach(petal => {
@@ -416,10 +557,10 @@ function checkPetalCollision() {
         const petalCenterY = petalRect.top + petalRect.height / 2;
 
         if (
-            petalCenterY >= actualCharacterTop - 10 &&
-            petalCenterY <= actualCharacterBottom + 10 &&
-            petalCenterX >= actualCharacterLeft - 10 &&
-            petalCenterX <= actualCharacterRight + 10
+            petalCenterY >= hitTop &&
+            petalCenterY <= hitBottom &&
+            petalCenterX >= hitLeft &&
+            petalCenterX <= hitRight
         ) {
             catchPetal(petal, petalRect);
         }
@@ -438,11 +579,12 @@ function catchPetal(petal, petalRect) {
     petal.remove();
     activePetal = null;
     waitingForCatch = false;
+    hasNearbyPetal = false;
 
-    if (characterState === 'waiting' || characterState === 'puttingDown') {
-        characterState = 'pickingUp';
-        currentFrame = Math.max(currentFrame, basketUpStart);
-    }
+    // 接到后安静站着等下一片，不要举篮走一步再停
+    characterState = 'idle';
+    currentFrame = idleFrame;
+    targetX = characterX;
 
     flyGuestTagToBoard(guestName, petalRect);
 
