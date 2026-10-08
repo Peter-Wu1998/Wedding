@@ -1,144 +1,235 @@
-// 打开请柬
-function openInvitation() {
-    document.getElementById('cover').style.display = 'none';
-    document.getElementById('mainContent').classList.add('active');
-    createPetals();
-    startCountdown();
-    initCharacterControl();
-}
+// 宾客名单（礼金只用于花瓣大小，不展示）
+const guests = [
+    { name: '徐四斌', amount: 1000 },
+    { name: '王正波', amount: 1000 },
+    { name: '郎晓炜', amount: 500 },
+    { name: '蔡新生', amount: 600 },
+    { name: '王秋实', amount: 1000 },
+    { name: '周千湘', amount: 1000 },
+    { name: '彭胜男', amount: 600 },
+    { name: '涂允灿', amount: 600 },
+    { name: '吴莎莎', amount: 600 },
+    { name: '施雅文', amount: 600 },
+    { name: '鲍雨丽', amount: 666 },
+    { name: '卢金鹏', amount: 600 },
+    { name: '张驰', amount: 200 },
+    { name: '王洪宇', amount: 600 },
+    { name: '夏永进', amount: 600 },
+    { name: '尤鑫', amount: 600 },
+    { name: '刘文豪', amount: 1000 },
+    { name: '厉宝强', amount: 420 },
+    { name: '厉根生', amount: 420 }
+];
 
-// 创建飘落花瓣效果
-function createPetals() {
-    const petalsContainer = document.getElementById('petals');
-    const petalCount = 20;
+const minGift = Math.min(...guests.map(g => g.amount));
+const maxGift = Math.max(...guests.map(g => g.amount));
+const minPetalScale = 0.9;
+const maxPetalScale = 3.2;
 
-    for (let i = 0; i < petalCount; i++) {
-        createSinglePetal(petalsContainer, i);
+let remainingGuests = [];
+let blessings = [];
+let activePetal = null;
+let petalFallTimer = null;
+let waitingForCatch = false;
+
+function shuffleGuests() {
+    remainingGuests = [...guests];
+    for (let i = remainingGuests.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [remainingGuests[i], remainingGuests[j]] = [remainingGuests[j], remainingGuests[i]];
     }
 }
 
-function createSinglePetal(container, index) {
+function pickNextGuest() {
+    if (remainingGuests.length === 0) {
+        shuffleGuests();
+    }
+    return remainingGuests.pop();
+}
+
+function giftToScale(amount) {
+    if (maxGift === minGift) return (minPetalScale + maxPetalScale) / 2;
+    const t = (amount - minGift) / (maxGift - minGift);
+    return minPetalScale + t * (maxPetalScale - minPetalScale);
+}
+
+const TOTAL_FRAMES = 61; // frame_0000.png ~ frame_0060.png
+
+function updateLoadingProgress(loaded, total) {
+    const percent = Math.min(100, Math.round((loaded / total) * 100));
+    const fill = document.getElementById('loadingBarFill');
+    const label = document.getElementById('loadingPercent');
+    if (fill) fill.style.width = percent + '%';
+    if (label) label.textContent = percent + '%';
+}
+
+function preloadImage(src) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = src;
+    });
+}
+
+async function preloadFrames(onProgress) {
+    let loaded = 0;
+    const tasks = [];
+
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+        const src = `frames/frame_${String(i).padStart(4, '0')}.png`;
+        tasks.push(
+            preloadImage(src).then(() => {
+                loaded++;
+                onProgress(loaded, TOTAL_FRAMES);
+            })
+        );
+    }
+
+    await Promise.all(tasks);
+}
+
+async function preloadFonts() {
+    if (!document.fonts || !document.fonts.load) {
+        return;
+    }
+
+    try {
+        await Promise.all([
+            document.fonts.load('16px "Pixeloid Sans"'),
+            document.fonts.load('bold 16px "Pixeloid Sans"'),
+            document.fonts.load('16px "Press Start 2P"'),
+            document.fonts.ready
+        ]);
+    } catch (e) {
+        // 字体失败也不阻塞上线体验
+        console.warn('字体加载未完全成功，继续进入页面', e);
+    }
+}
+
+async function prepareResources() {
+    // 帧图占进度 0–90%，字体占 90–100%
+    updateLoadingProgress(0, 100);
+
+    await preloadFrames((loaded, total) => {
+        const mapped = Math.round((loaded / total) * 90);
+        updateLoadingProgress(mapped, 100);
+    });
+
+    await preloadFonts();
+    updateLoadingProgress(100, 100);
+}
+
+function hideLoadingScreen() {
+    const loading = document.getElementById('loadingScreen');
+    if (!loading) return;
+
+    loading.classList.add('fade-out');
+    setTimeout(() => {
+        loading.remove();
+    }, 450);
+}
+
+// 资源就绪后进入答谢页
+function startThankYouPage() {
+    document.getElementById('app')?.removeAttribute('hidden');
+    document.getElementById('petals')?.removeAttribute('hidden');
+    document.getElementById('character')?.removeAttribute('hidden');
+
+    shuffleGuests();
+    initCharacterControl();
+    spawnNextPetal();
+    hideLoadingScreen();
+}
+
+// 一次只落一片；接到后再落下一片
+function spawnNextPetal(guestOverride) {
+    if (waitingForCatch && !guestOverride) return;
+
+    const container = document.getElementById('petals');
+    if (!container) return;
+
+    if (petalFallTimer) {
+        clearTimeout(petalFallTimer);
+        petalFallTimer = null;
+    }
+    if (activePetal && activePetal.parentNode) {
+        activePetal.remove();
+    }
+
+    const guest = guestOverride || pickNextGuest();
     const petal = document.createElement('div');
     const petalType = Math.floor(Math.random() * 5) + 1;
     petal.className = `petal type${petalType}`;
-    petal.style.left = Math.random() * 100 + '%';
-    const duration = Math.random() * 5 + 8;
+    petal.dataset.guestName = guest.name;
+    petal.dataset.guestAmount = String(guest.amount);
+
+    petal.style.left = Math.random() * 80 + 10 + '%';
+
+    const duration = Math.random() * 3 + 7; // 7-10秒，单片更易接
     petal.style.animationDuration = duration + 's';
-    petal.style.animationDelay = (index * 0.3) + 's';
+    petal.style.animationDelay = '0s';
+
     const animations = ['fall', 'fall2', 'fall3', 'fall4', 'fall5'];
-    const animationType = animations[Math.floor(Math.random() * animations.length)];
-    petal.style.animationName = animationType;
+    petal.style.animationName = animations[Math.floor(Math.random() * animations.length)];
     petal.style.animationTimingFunction = 'linear';
-    const scale = 0.6 + Math.random() * 0.8;
-    const initialRotation = Math.random() * 360;
-    petal.style.transform = `scale(${scale}) rotate(${initialRotation}deg)`;
+
+    const scale = giftToScale(guest.amount);
+    petal.style.setProperty('--petal-scale', scale.toFixed(2));
+
     container.appendChild(petal);
+    activePetal = petal;
+    waitingForCatch = true;
 
-    setTimeout(() => {
-        petal.remove();
-        setTimeout(() => createSinglePetal(container, index), Math.random() * 2000);
-    }, (duration + (index * 0.3)) * 1000);
-}
-
-// 倒计时
-function startCountdown() {
-    const weddingDate = new Date('2026-10-06T11:00:00').getTime();
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = weddingDate - now;
-        if (distance < 0) {
-            document.getElementById('countdown').innerHTML = '<p style="font-size: 1.5rem; color: #ff6b9d;">婚礼正在进行中 💕</p>';
-            return;
+    // 未接到则同一人再落一次，直到接到才换下一位
+    petalFallTimer = setTimeout(() => {
+        if (activePetal === petal && petal.parentNode) {
+            petal.remove();
+            activePetal = null;
+            waitingForCatch = false;
+            setTimeout(() => spawnNextPetal(guest), 600);
         }
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById('days').textContent = days;
-        document.getElementById('hours').textContent = hours;
-        document.getElementById('minutes').textContent = minutes;
-        document.getElementById('seconds').textContent = seconds;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-}
-
-// 地图导航
-function openMap() {
-    const address = 'XX酒店 XX厅';
-    const gaodeMapUrl = `https://uri.amap.com/search?query=${encodeURIComponent(address)}`;
-    if (confirm('是否打开地图导航？\n点击"确定"打开高德地图')) {
-        window.open(gaodeMapUrl, '_blank');
-    }
-}
-
-window.addEventListener('load', () => {
-    document.body.style.opacity = '1';
-});
-
-// ==================== 祝福系统 ====================
-let blessings = [];
-let blessingHearts = [];
-
-function showBlessingModal() {
-    const modal = document.getElementById('blessingModal');
-    modal.classList.add('active');
-    document.getElementById('blessingName').value = '';
-    document.getElementById('blessingText').value = '';
-    document.getElementById('blessingName').focus();
-}
-function closeBlessingModal() {
-    const modal = document.getElementById('blessingModal');
-    modal.classList.remove('active');
-}
-function submitBlessing() {
-    const name = document.getElementById('blessingName').value.trim();
-    const text = document.getElementById('blessingText').value.trim();
-    if (!name) { alert('请输入姓名'); return; }
-    if (!text) { alert('请输入祝福语'); return; }
-    const blessing = { name, text, id: Date.now() };
-    createBlessingHeart(blessing);
-    closeBlessingModal();
-}
-function createBlessingHeart(blessing) {
-    const heart = document.createElement('div');
-    heart.className = 'blessing-heart';
-    heart.textContent = '💗';
-    heart.dataset.blessingId = blessing.id;
-    const randomX = Math.random() * 80 + 10;
-    heart.style.left = randomX + '%';
-    heart.style.top = '-100px';
-    const duration = Math.random() * 3 + 8;
-    heart.style.animationDuration = duration + 's';
-    document.body.appendChild(heart);
-    blessingHearts.push({ element: heart, blessing, x: randomX });
-    setTimeout(() => {
-        if (heart.parentNode) heart.remove();
-        const idx = blessingHearts.findIndex(b => b.element === heart);
-        if (idx > -1) blessingHearts.splice(idx, 1);
     }, duration * 1000);
 }
-function addBlessingToList(blessing) {
-    const listItems = document.getElementById('blessingListItems');
-    const item = document.createElement('div');
-    item.className = 'blessing-list-item';
-    item.innerHTML = `
-        <div class="blessing-list-item-name">${blessing.name}:</div>
-        <div class="blessing-list-item-text">${blessing.text}</div>
-    `;
-    listItems.insertBefore(item, listItems.firstChild);
-    while (listItems.children.length > 20) listItems.removeChild(listItems.lastChild);
-    blessings.push(blessing);
+
+// 等动画帧与字体全部就绪后再开始落花瓣
+window.addEventListener('DOMContentLoaded', async () => {
+    document.body.style.opacity = '1';
+    try {
+        await prepareResources();
+    } catch (e) {
+        console.warn('资源预加载出错，仍进入页面', e);
+        updateLoadingProgress(100, 100);
+    }
+    // 稍留一点时间让 100% 可见
+    setTimeout(startThankYouPage, 280);
+});
+
+// ==================== 衷心感谢 · 名单 ====================
+
+function addGuestToBoard(name) {
+    const list = document.getElementById('guestList');
+    const hint = document.getElementById('guestHint');
+    if (!list) return;
+
+    if (hint) hint.hidden = true;
+
+    const item = document.createElement('span');
+    item.className = 'guest-name';
+    item.textContent = name;
+    list.insertBefore(item, list.firstChild);
+
+    blessings.push(name);
 }
 
-// ==================== 角色控制系统【240px单帧雪碧图】 ====================
+// ==================== 角色控制系统 ====================
+
 let characterX = 50;
 let score = 0;
 let targetX = 50;
 let currentFrame = 0;
 let lastX = 50;
 
-// 帧业务配置
 const idleFrame = 0;
 const basketDownEnd = 15;
 const basketUpStart = 15;
@@ -148,34 +239,13 @@ const runEndFrame = 60;
 
 let characterState = 'idle';
 let hasNearbyPetal = false;
+
 const moveSpeed = 0.8;
-
-// ==========雪碧图参数（现在单帧240px，10列6行）==========
-const SPRITE_COLS = 10;
-const FRAME_W = 240;
-const FRAME_H = 240;
-
-let animId = null;
-
-// 直接原始像素偏移，不需要缩放系数
-function setSpriteFrame(frameIdx) {
-    const spriteDiv = document.getElementById('characterSprite');
-    if (!spriteDiv) return;
-    const col = frameIdx % SPRITE_COLS;
-    const row = Math.floor(frameIdx / SPRITE_COLS);
-    const x = -(col * FRAME_W);
-    const y = -(row * FRAME_H);
-    spriteDiv.style.backgroundPosition = `${x}px ${y}px`;
-}
-
-function tickCharacterAnimation() {
-    updateCharacterAnimation();
-    animId = requestAnimationFrame(tickCharacterAnimation);
-}
 
 function initCharacterControl() {
     const character = document.getElementById('character');
     if (!character) return;
+
     const scoreBoard = document.createElement('div');
     scoreBoard.className = 'score-board';
     scoreBoard.innerHTML = `
@@ -186,18 +256,24 @@ function initCharacterControl() {
 
     setInterval(findNearestPetal, 50);
     setInterval(moveToTarget, 30);
-    tickCharacterAnimation();
+    setInterval(updateCharacterAnimation, 50);
     setInterval(checkPetalCollision, 100);
 }
 
 function updateCharacterAnimation() {
+    const character = document.getElementById('character');
+    const sprite = document.getElementById('characterSprite');
+    if (!sprite) return;
+
     const movementDelta = characterX - lastX;
     const isMoving = Math.abs(movementDelta) > 0.5;
-    const charEl = document.getElementById('character');
 
-    if(isMoving){
-        if(movementDelta < 0) charEl.classList.add('moving-left');
-        else charEl.classList.remove('moving-left');
+    if (isMoving) {
+        if (movementDelta < 0) {
+            character.classList.add('moving-left');
+        } else if (movementDelta > 0) {
+            character.classList.remove('moving-left');
+        }
     }
 
     switch (characterState) {
@@ -211,31 +287,44 @@ function updateCharacterAnimation() {
                 currentFrame = basketUpStart;
             }
             break;
+
         case 'puttingDown':
-            if (currentFrame > idleFrame) currentFrame--;
-            else characterState = 'waiting';
+            if (currentFrame > idleFrame) {
+                currentFrame--;
+            } else {
+                characterState = 'waiting';
+            }
+
             if (isMoving) {
                 characterState = 'pickingUp';
                 currentFrame = Math.max(currentFrame, basketUpStart);
             }
             break;
+
         case 'waiting':
             currentFrame = idleFrame;
+
             if (isMoving || !hasNearbyPetal) {
                 characterState = 'pickingUp';
                 currentFrame = basketUpStart;
             }
             break;
+
         case 'pickingUp':
-            if (currentFrame < basketUpEnd) currentFrame++;
-            else {
+            if (currentFrame < basketUpEnd) {
+                currentFrame++;
+            } else {
                 characterState = 'running';
                 currentFrame = runStartFrame;
             }
             break;
+
         case 'running':
             currentFrame++;
-            if (currentFrame > runEndFrame) currentFrame = runStartFrame;
+            if (currentFrame > runEndFrame) {
+                currentFrame = runStartFrame;
+            }
+
             if (!isMoving && hasNearbyPetal) {
                 characterState = 'puttingDown';
                 currentFrame = basketDownEnd;
@@ -246,65 +335,48 @@ function updateCharacterAnimation() {
             break;
     }
 
-    setSpriteFrame(currentFrame);
+    sprite.src = `frames/frame_${String(currentFrame).padStart(4, '0')}.png`;
     lastX = characterX;
 }
 
 function findNearestPetal() {
     const character = document.getElementById('character');
     if (!character) return;
+
     const characterRect = character.getBoundingClientRect();
     const characterCenterX = characterRect.left + characterRect.width / 2;
     const petals = document.querySelectorAll('.petal');
+
     let nearestPetal = null;
     let minDistance = Infinity;
-    let targetType = 'none';
     hasNearbyPetal = false;
 
-    blessingHearts.forEach(bh => {
-        const heartRect = bh.element.getBoundingClientRect();
-        if (heartRect.top > window.innerHeight * 0.2) {
-            const heartCenterX = heartRect.left + heartRect.width / 2;
-            const horizontalDist = Math.abs(heartCenterX - characterCenterX);
-            const verticalDist = window.innerHeight - heartRect.bottom;
-            const priority = horizontalDist + verticalDist * 0.3;
+    petals.forEach(petal => {
+        const petalRect = petal.getBoundingClientRect();
+
+        if (petalRect.top > window.innerHeight * 0.3) {
+            const petalCenterX = petalRect.left + petalRect.width / 2;
+
+            const horizontalDist = Math.abs(petalCenterX - characterCenterX);
+            const verticalDist = window.innerHeight - petalRect.bottom;
+
+            const priority = horizontalDist + verticalDist * 0.5;
+
             if (priority < minDistance) {
                 minDistance = priority;
-                nearestPetal = bh;
-                targetType = 'blessing';
+                nearestPetal = petal;
             }
-            if (heartRect.top > window.innerHeight * 0.4) hasNearbyPetal = true;
+
+            if (petalRect.top > window.innerHeight * 0.4) {
+                hasNearbyPetal = true;
+            }
         }
     });
 
-    if (targetType === 'none') {
-        petals.forEach(petal => {
-            const petalRect = petal.getBoundingClientRect();
-            if (petalRect.top > window.innerHeight * 0.3) {
-                const petalCenterX = petalRect.left + petalRect.width / 2;
-                const horizontalDist = Math.abs(petalCenterX - characterCenterX);
-                const verticalDist = window.innerHeight - petalRect.bottom;
-                const priority = horizontalDist + verticalDist * 0.5;
-                if (priority < minDistance) {
-                    minDistance = priority;
-                    nearestPetal = petal;
-                    targetType = 'petal';
-                }
-                if (petalRect.top > window.innerHeight * 0.4) hasNearbyPetal = true;
-            }
-        });
-    }
-
     if (nearestPetal) {
-        if (targetType === 'blessing') {
-            const heartRect = nearestPetal.element.getBoundingClientRect();
-            const heartCenterX = heartRect.left + heartRect.width / 2;
-            targetX = (heartCenterX / window.innerWidth) * 100;
-        } else {
-            const petalRect = nearestPetal.getBoundingClientRect();
-            const petalCenterX = petalRect.left + petalRect.width / 2;
-            targetX = (petalCenterX / window.innerWidth) * 100;
-        }
+        const petalRect = nearestPetal.getBoundingClientRect();
+        const petalCenterX = petalRect.left + petalRect.width / 2;
+        targetX = (petalCenterX / window.innerWidth) * 100;
         targetX = Math.max(5, Math.min(95, targetX));
     }
 }
@@ -312,10 +384,15 @@ function findNearestPetal() {
 function moveToTarget() {
     const character = document.getElementById('character');
     if (!character) return;
+
     const distance = targetX - characterX;
+
     if (Math.abs(distance) > 0.5) {
-        if (distance > 0) characterX += Math.min(moveSpeed, distance);
-        else characterX += Math.max(-moveSpeed, distance);
+        if (distance > 0) {
+            characterX += Math.min(moveSpeed, distance);
+        } else {
+            characterX += Math.max(-moveSpeed, distance);
+        }
         character.style.left = characterX + '%';
     }
 }
@@ -323,67 +400,67 @@ function moveToTarget() {
 function checkPetalCollision() {
     const character = document.getElementById('character');
     if (!character) return;
-    const characterRect = character.getBoundingClientRect();
-    // 角色缩小到240，碰撞阈值同步调小
-    const actualCharacterLeft = characterRect.left + 60;
-    const actualCharacterRight = characterRect.right - 60;
-    const actualCharacterTop = characterRect.top + 60;
-    const actualCharacterBottom = characterRect.bottom - 60;
 
-    blessingHearts.forEach((bh, index) => {
-        const heartRect = bh.element.getBoundingClientRect();
-        const heartCenterX = heartRect.left + heartRect.width / 2;
-        const heartCenterY = heartRect.top + heartRect.height / 2;
-        if (heartCenterY >= actualCharacterTop - 20 && heartCenterY <= actualCharacterBottom + 20
-            && heartCenterX >= actualCharacterLeft - 20 && heartCenterX <= actualCharacterRight + 20) {
-            catchBlessing(bh, heartRect, index);
-        }
-    });
+    const characterRect = character.getBoundingClientRect();
+
+    const actualCharacterLeft = characterRect.left + 100;
+    const actualCharacterRight = characterRect.right - 100;
+    const actualCharacterTop = characterRect.top + 100;
+    const actualCharacterBottom = characterRect.bottom - 100;
 
     const petals = document.querySelectorAll('.petal');
     petals.forEach(petal => {
         const petalRect = petal.getBoundingClientRect();
         const petalCenterX = petalRect.left + petalRect.width / 2;
         const petalCenterY = petalRect.top + petalRect.height / 2;
-        if (petalCenterY >= actualCharacterTop - 10 && petalCenterY <= actualCharacterBottom + 10
-            && petalCenterX >= actualCharacterLeft - 10 && petalCenterX <= actualCharacterRight + 10) {
+
+        if (
+            petalCenterY >= actualCharacterTop - 10 &&
+            petalCenterY <= actualCharacterBottom + 10 &&
+            petalCenterX >= actualCharacterLeft - 10 &&
+            petalCenterX <= actualCharacterRight + 10
+        ) {
             catchPetal(petal, petalRect);
         }
     });
 }
 
-function catchBlessing(blessingHeart, heartRect, index) {
-    blessingHeart.element.remove();
-    blessingHearts.splice(index, 1);
-    const effect = document.createElement('div');
-    effect.className = 'catch-effect';
-    effect.textContent = '💗祝福！';
-    effect.style.left = heartRect.left + 'px';
-    effect.style.top = heartRect.top + 'px';
-    effect.style.fontSize = '2rem';
-    document.body.appendChild(effect);
-    setTimeout(() => effect.remove(), 1000);
-    addBlessingToList(blessingHeart.blessing);
-    if (characterState === 'waiting' || characterState === 'puttingDown') {
-        characterState = 'pickingUp';
-        currentFrame = Math.max(currentFrame, basketUpStart);
-    }
-}
-
 function catchPetal(petal, petalRect) {
+    if (petal !== activePetal) return;
+
+    if (petalFallTimer) {
+        clearTimeout(petalFallTimer);
+        petalFallTimer = null;
+    }
+
+    const guestName = petal.dataset.guestName || '宾客';
     petal.remove();
+    activePetal = null;
+    waitingForCatch = false;
+
     score++;
     const scoreValue = document.getElementById('scoreValue');
-    if (scoreValue) scoreValue.textContent = score;
+    if (scoreValue) {
+        scoreValue.textContent = score;
+    }
+
+    // 名单只显示姓名，不显示礼金
+    addGuestToBoard(guestName);
+
     if (characterState === 'waiting' || characterState === 'puttingDown') {
         characterState = 'pickingUp';
         currentFrame = Math.max(currentFrame, basketUpStart);
     }
+
     const effect = document.createElement('div');
     effect.className = 'catch-effect';
-    effect.textContent = '🌸+1';
+    effect.textContent = `🌸 ${guestName}`;
     effect.style.left = petalRect.left + 'px';
     effect.style.top = petalRect.top + 'px';
     document.body.appendChild(effect);
+
     setTimeout(() => effect.remove(), 1000);
+
+    // 接到后稍等再落下一片
+    setTimeout(() => spawnNextPetal(), 800);
 }

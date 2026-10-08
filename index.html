@@ -2,154 +2,57 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>婚礼请柬</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>婚礼答谢</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- 封面部分 -->
-        <section class="cover" id="cover">
-            <div class="cover-content">
-                <h1 class="title fade-in">我们结婚了</h1>
-                <p class="subtitle fade-in-delay">诚挚邀请您见证我们的幸福时刻</p>
-                <button class="open-btn" onclick="openInvitation()">打开请柬</button>
+    <!-- 资源加载页 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-heart">💗</div>
+            <p class="loading-title">正在准备</p>
+            <p class="loading-subtitle">请稍候…</p>
+            <div class="loading-bar">
+                <div class="loading-bar-fill" id="loadingBarFill"></div>
             </div>
-        </section>
+            <p class="loading-percent" id="loadingPercent">0%</p>
+        </div>
+    </div>
 
+    <div class="container" id="app" hidden>
         <!-- 主内容部分 -->
         <section class="main-content" id="mainContent">
-            <!-- 新人信息 -->
-            <div class="couple-section">
-                <div class="groom">
-                    <h2 class="name">伍良俊</h2>
-                    <p class="role">Groom</p>
-                </div>
-                <div class="heart">❤️</div>
-                <div class="bride">
-                    <h2 class="name">吴丹</h2>
-                    <p class="role">Bride</p>
-                </div>
-            </div>
-
-            <!-- 婚礼信息 -->
-            <div class="wedding-info">
-                <h2 class="section-title">婚礼信息</h2>
-                <div class="info-item">
-                    <span class="icon">📅</span>
-                    <div class="info-text">
-                        <p class="label">婚礼日期</p>
-                        <p class="value">2026年10月1日 星期四</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="icon">🕐</span>
-                    <div class="info-text">
-                        <p class="label">婚礼时间</p>
-                        <p class="value">上午 11:00</p>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <span class="icon">📍</span>
-                    <div class="info-text">
-                        <p class="label">婚礼地点</p>
-                        <p class="value">XX酒店 XX厅</p>
-                        <p class="address">详细地址：某市某区某街道123号</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 爱的寄语 -->
-            <div class="love-message">
-                <h2 class="section-title">我们的故事</h2>
-                <p class="message-text">
-                    感谢您一路以来的陪伴与支持<br>
-                    我们即将携手步入婚姻的殿堂<br>
-                    诚挚邀请您共同见证这美好时刻<br>
-                    期待您的到来
+            <!-- 答谢语 -->
+            <div class="couple-section thanks-banner">
+                <p class="thanks-text">
+                    感谢您拨冗光临，见证我们的幸福时刻<br>
+                    您的祝福，是我们最珍贵的礼物
                 </p>
+                <p class="thanks-names">伍良俊 &amp; 吴丹</p>
             </div>
 
-            <!-- 倒计时 -->
-            <div class="countdown-section">
-                <h2 class="section-title">距离婚礼还有</h2>
-                <div class="countdown" id="countdown">
-                    <div class="time-box">
-                        <span class="time-value" id="days">0</span>
-                        <span class="time-label">天</span>
-                    </div>
-                    <div class="time-box">
-                        <span class="time-value" id="hours">0</span>
-                        <span class="time-label">时</span>
-                    </div>
-                    <div class="time-box">
-                        <span class="time-value" id="minutes">0</span>
-                        <span class="time-label">分</span>
-                    </div>
-                    <div class="time-box">
-                        <span class="time-value" id="seconds">0</span>
-                        <span class="time-label">秒</span>
-                    </div>
+            <!-- 衷心感谢 · 宾客名单 -->
+            <div class="love-message guest-board">
+                <h2 class="section-title">衷心感谢</h2>
+                <p class="guest-hint" id="guestHint">接住花瓣，名单会显示在这里</p>
+                <div class="guest-list" id="guestList">
+                    <!-- 接到花瓣后显示宾客姓名 -->
                 </div>
             </div>
 
-            <!-- 地图按钮 -->
-            <div class="map-section">
-                <button class="map-btn" onclick="openMap()">📍 查看地图导航</button>
-            </div>
-
-            <!-- 页脚 -->
-            <footer class="footer">
-                <p>期待您的光临</p>
-                <p class="couple-names">伍良俊 & 吴丹</p>
-            </footer>
+            <div class="play-space" aria-hidden="true"></div>
         </section>
     </div>
 
     <!-- 飘落的花瓣效果 -->
-    <div class="petals" id="petals"></div>
+    <div class="petals" id="petals" hidden></div>
 
     <!-- 底部可移动的小人 -->
-	<div class="character" id="character">
-		<div class="running-character">
-			<div id="characterSprite"></div>
-		</div>
-	</div>
-
-
-    <!-- 祝福按钮 -->
-    <button class="blessing-btn" id="blessingBtn" onclick="showBlessingModal()">
-        祝福
-    </button>
-
-    <!-- 祝福弹窗 -->
-    <div class="blessing-modal" id="blessingModal">
-        <div class="blessing-modal-content">
-            <div class="blessing-modal-header">
-                送上祝福
-                <button class="blessing-modal-close" onclick="closeBlessingModal()">✕</button>
-            </div>
-            <div class="blessing-modal-body">
-                <div class="blessing-input-group">
-                    <label>姓名</label>
-                    <input type="text" id="blessingName" maxlength="10" placeholder="请输入您的姓名">
-                </div>
-                <div class="blessing-input-group">
-                    <label>祝福语</label>
-                    <textarea id="blessingText" maxlength="50" placeholder="写下您的祝福..."></textarea>
-                </div>
-                <button class="blessing-submit-btn" onclick="submitBlessing()">
-                    确定
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 祝福列表 -->
-    <div class="blessing-list" id="blessingList">
-        <div class="blessing-list-header">祝福墙</div>
-        <div class="blessing-list-items" id="blessingListItems">
-            <!-- 祝福项将动态添加到这里 -->
+    <div class="character" id="character" hidden>
+        <!-- 跑步动画角色 -->
+        <div class="running-character">
+            <img id="characterSprite" src="frames/frame_0000.png" alt="角色">
         </div>
     </div>
 

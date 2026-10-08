@@ -8,21 +8,25 @@
     -ms-user-select: none;
 }
 
-/* 方舟像素字体 - 在线版本（支持中英文） */
-@import url('https://cdn.jsdelivr.net/npm/ark-pixel-font@latest/dist/ark-pixel-12px-proportional-zh_cn.css');
-
-/* 本地英文像素字体作为备用 */
+/* GBA火焰之纹章风格像素字�?*/
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* 导入粗体像素字体 - Silkscreen 粗体清晰 */
 @font-face {
-    font-family: 'Press Start 2P';
-    src: url('fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-family: 'Pixeloid Sans';
+    src: url('https://cdn.jsdelivr.net/gh/GGBotNet/Pixeloid@main/PixeloidSans.ttf') format('truetype');
     font-weight: normal;
-    font-display: swap;
+}
+@font-face {
+    font-family: 'Pixeloid Sans';
+    src: url('https://cdn.jsdelivr.net/gh/GGBotNet/Pixeloid@main/PixeloidSans-Bold.ttf') format('truetype');
+    font-weight: bold;
 }
 
 body {
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', 'Courier New', monospace;
     background: #1a1a2e;
     min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
@@ -31,11 +35,97 @@ body {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }
 
 .container {
     max-width: 100%;
     margin: 0 auto;
+}
+
+/* 资源加载页 */
+.loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.12) 0px,
+            rgba(0, 0, 0, 0.12) 2px,
+            transparent 2px,
+            transparent 4px
+        ),
+        linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%);
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.loading-screen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loading-content {
+    text-align: center;
+    color: #fff;
+    padding: 2rem;
+    width: min(320px, 86vw);
+}
+
+.loading-heart {
+    font-size: 2.6rem;
+    margin-bottom: 1rem;
+    animation: loadingPulse 1.1s steps(2) infinite;
+    filter: drop-shadow(2px 2px 0 #000);
+}
+
+@keyframes loadingPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.loading-title {
+    font-size: 1.1rem;
+    letter-spacing: 0.12em;
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+    font-size: 0.7rem;
+    color: #ffb6d9;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 1.4rem;
+}
+
+.loading-bar {
+    height: 18px;
+    border: 3px solid #000;
+    background: #111;
+    box-shadow:
+        inset -2px -2px 0 rgba(0, 0, 0, 0.5),
+        inset 2px 2px 0 rgba(255, 255, 255, 0.12),
+        4px 4px 0 #000;
+    overflow: hidden;
+}
+
+.loading-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(180deg, #ff8fab 0%, #ff6b9d 45%, #c41e3a 100%);
+    transition: width 0.15s linear;
+}
+
+.loading-percent {
+    margin-top: 0.9rem;
+    font-size: 0.85rem;
+    color: #ffd700;
+    text-shadow: 2px 2px 0 #000;
+    font-variant-numeric: tabular-nums;
 }
 
 /* 封面样式 - GBA风格 */
@@ -126,7 +216,7 @@ body {
 .open-btn {
     padding: 1rem 2rem;
     font-size: 1.4rem;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
     color: #000;
     border: 4px solid #000;
@@ -178,17 +268,23 @@ body {
     to { opacity: 1; }
 }
 
-/* 主内容样�?- GBA风格 */
+/* 主内容 - GBA风格 */
 .main-content {
-    display: none;
-    padding: 2rem 1rem 6rem 1rem;
+    display: flex;
+    padding: 1rem 1rem 7.5rem;
     max-width: 800px;
     margin: 0 auto;
+    min-height: 100vh;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 0.85rem;
 }
 
-.main-content.active {
-    display: block;
-    animation: slideIn 0.3s steps(6) forwards;
+/* 给落花瓣留出的游戏空间 */
+.play-space {
+    flex: 1;
+    min-height: 42vh;
+    width: 100%;
 }
 
 @keyframes slideIn {
@@ -236,6 +332,29 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
+}
+
+.thanks-banner {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+    padding-top: 1.6rem;
+    padding-bottom: 1.4rem;
+}
+
+.thanks-text {
+    color: #333;
+    font-size: 0.85rem;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+}
+
+.thanks-names {
+    color: #c41e3a;
+    font-size: 1.15rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.12);
+    letter-spacing: 0.08em;
 }
 
 .groom, .bride {
@@ -328,7 +447,53 @@ body {
     text-align: center;
 }
 
-/* GBA风格倒计*/
+/* 衷心感谢 · 名单 */
+.guest-board {
+    text-align: center;
+}
+
+.guest-hint {
+    color: #666;
+    font-size: 0.7rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+
+.guest-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem 0.55rem;
+    max-height: min(28vh, 240px);
+    overflow: hidden;
+}
+
+.guest-name {
+    display: inline-block;
+    padding: 0.35rem 0.7rem;
+    background: linear-gradient(180deg, #fff0f5 0%, #ffd0e0 100%);
+    border: 2px solid #000;
+    color: #c41e3a;
+    font-size: 0.72rem;
+    font-weight: bold;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.6),
+        2px 2px 0 #000;
+    animation: guestNameIn 0.45s steps(5);
+}
+
+@keyframes guestNameIn {
+    from {
+        transform: scale(0.6);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* GBA风格倒计�?*/
 .countdown {
     display: flex;
     justify-content: space-around;
@@ -359,7 +524,7 @@ body {
 .time-value {
     font-size: 2.4rem;
     font-weight: bold;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Courier New', monospace;
 }
 
 .time-label {
@@ -377,7 +542,7 @@ body {
 .map-btn {
     padding: 1rem 2rem;
     font-size: 1.2rem;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     background: linear-gradient(180deg, #5a9 0%, #2a7 100%);
     color: #fff;
     border: 4px solid #000;
@@ -403,17 +568,19 @@ body {
 
 .footer {
     text-align: center;
-    padding: 2rem 0;
+    padding: 2rem 1rem;
     color: #999;
-    margin-top: 3rem;
-    font-size: 0.8rem;
+    margin-top: auto;
+    font-size: 0.85rem;
     line-height: 2;
+    width: 100%;
 }
 
 .couple-names {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     color: #ff6b9d;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
+    letter-spacing: 0.05em;
 }
 
 /* 飘落花瓣效果 */
@@ -430,169 +597,289 @@ body {
 .petal {
     position: absolute;
     top: -20px;
-    opacity: 0.8;
+    opacity: 0.96;
+    filter: saturate(1.15) contrast(1.08);
+    animation-timing-function: linear;
 }
 
-.petal { animation-timing-function: linear; }
+.petal::before {
+    content: '';
+    position: absolute;
+    inset: 22% 42% 26% 42%;
+    border-radius: 50%;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.18) 0%,
+        rgba(255, 180, 210, 0.08) 45%,
+        rgba(180, 40, 90, 0.2) 100%
+    );
+    pointer-events: none;
+}
 
-/* 花瓣类型1：樱花花�?- 圆润带缺�?*/
+.petal::after {
+    content: '';
+    position: absolute;
+    top: 14%;
+    left: 22%;
+    width: 32%;
+    height: 20%;
+    border-radius: 50%;
+    background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.28) 0%,
+        rgba(255, 255, 255, 0.06) 55%,
+        transparent 100%
+    );
+    pointer-events: none;
+}
+
+/* 花瓣类型1：樱花 — 圆润带缺口 */
 .petal.type1 {
     width: 12px;
     height: 20px;
-    background: linear-gradient(135deg, #ffb6d9 0%, #ff85b8 50%, #ff6ba3 100%);
+    background:
+        radial-gradient(ellipse at 35% 25%, rgba(255, 255, 255, 0.22) 0%, transparent 45%),
+        linear-gradient(145deg, #ffd0e8 0%, #ff9ec8 38%, #ff6ba3 72%, #e8457a 100%);
     border-radius: 50% 0 50% 50%;
-    box-shadow: 
-        inset -2px -3px 5px rgba(255, 105, 150, 0.6),
-        inset 2px 2px 5px rgba(255, 255, 255, 0.5),
-        0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        inset -2px -3px 6px rgba(190, 40, 90, 0.55),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.28),
+        0 3px 6px rgba(0, 0, 0, 0.28),
+        0 1px 2px rgba(255, 120, 160, 0.25);
 }
 
-/* 花瓣类型2：玫瑰花�?- 椭圆�?*/
+/* 花瓣类型2：玫瑰 — 椭圆 */
 .petal.type2 {
     width: 14px;
     height: 22px;
-    background: linear-gradient(180deg, #ff6b9d 0%, #ff85b8 40%, #ffb6d9 80%, #ffd1e8 100%);
+    background:
+        radial-gradient(ellipse at 40% 20%, rgba(255, 255, 255, 0.22) 0%, transparent 40%),
+        linear-gradient(185deg, #ff7aa8 0%, #ff5f96 35%, #ff8fb8 65%, #ffc4dc 100%);
     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    box-shadow: 
-        inset 1px 3px 6px rgba(255, 255, 255, 0.5),
-        inset -1px -2px 5px rgba(255, 60, 120, 0.4),
-        0 2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        inset 1px 3px 5px rgba(255, 255, 255, 0.25),
+        inset -2px -3px 6px rgba(200, 30, 80, 0.45),
+        0 3px 7px rgba(0, 0, 0, 0.3),
+        0 1px 2px rgba(255, 100, 150, 0.28);
 }
 
-/* 花瓣类型3：梅花花�?- 纵向椭圆 */
+/* 花瓣类型3：梅花 — 纵向椭圆 */
 .petal.type3 {
     width: 13px;
     height: 18px;
-    background: radial-gradient(ellipse at 40% 30%, #ffe0ec 0%, #ffb6d9 30%, #ff85b8 70%, #ff6b9d 100%);
+    background:
+        radial-gradient(ellipse at 40% 28%, #ffe8f0 0%, #ffc4dc 28%, #ff85b8 62%, #e84d7a 100%);
     border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
-    box-shadow: 
-        inset 2px 2px 4px rgba(255, 255, 255, 0.6),
-        inset -2px -2px 4px rgba(255, 80, 130, 0.5),
-        0 2px 4px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.28),
+        inset -2px -3px 5px rgba(200, 50, 100, 0.5),
+        0 3px 6px rgba(0, 0, 0, 0.28),
+        0 1px 2px rgba(255, 130, 170, 0.25);
 }
 
-/* 花瓣类型4：桃花花�?- 水滴�?*/
+/* 花瓣类型4：桃花 — 水滴 */
 .petal.type4 {
     width: 11px;
     height: 19px;
-    background: linear-gradient(160deg, #ff7aa5 0%, #ff99bb 40%, #ffcce0 100%);
+    background:
+        radial-gradient(ellipse at 30% 22%, rgba(255, 255, 255, 0.2) 0%, transparent 42%),
+        linear-gradient(155deg, #ff8fb0 0%, #ff6b9d 42%, #ffb0cc 78%, #ffe0ec 100%);
     border-radius: 50% 50% 50% 0;
-    box-shadow: 
-        inset 3px 2px 5px rgba(255, 255, 255, 0.5),
-        inset -1px -2px 4px rgba(255, 70, 110, 0.5),
-        0 2px 5px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        inset 2px 2px 4px rgba(255, 255, 255, 0.25),
+        inset -1px -3px 5px rgba(190, 40, 90, 0.5),
+        0 3px 6px rgba(0, 0, 0, 0.28),
+        0 1px 2px rgba(255, 110, 155, 0.25);
 }
 
-/* 花瓣类型5：牡丹花�?- 长椭�?*/
+/* 花瓣类型5：牡丹 — 长椭圆 */
 .petal.type5 {
     width: 15px;
     height: 23px;
-    background: linear-gradient(180deg, #ff5a8a 0%, #ff85b8 30%, #ffb6d9 60%, #ffd1e8 100%);
+    background:
+        radial-gradient(ellipse at 38% 18%, rgba(255, 255, 255, 0.22) 0%, transparent 38%),
+        linear-gradient(175deg, #ff4f86 0%, #ff6b9d 28%, #ff9ec8 58%, #ffd1e8 100%);
     border-radius: 50% 50% 50% 50% / 55% 55% 45% 45%;
-    box-shadow: 
-        inset 1px 3px 6px rgba(255, 255, 255, 0.6),
-        inset -1px -3px 5px rgba(255, 50, 100, 0.4),
-        0 3px 6px rgba(0, 0, 0, 0.3);
+    box-shadow:
+        inset 1px 3px 5px rgba(255, 255, 255, 0.25),
+        inset -2px -4px 6px rgba(180, 30, 80, 0.45),
+        0 4px 8px rgba(0, 0, 0, 0.32),
+        0 1px 2px rgba(255, 90, 140, 0.28);
 }
 
-/* 花瓣飘落动画 - 垂直下落，无摆动 */
+/* 花瓣飘落动画 — 保留 --petal-scale（按礼金比例） */
 @keyframes fall {
     0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
+        transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
+        opacity: 0.96;
+    }
+    75% {
+        opacity: 0.92;
     }
     100% {
-        transform: translateY(100vh) rotate(360deg);
+        transform: translateY(100vh) rotate(360deg) scale(var(--petal-scale, 1));
         opacity: 0;
     }
 }
 
 @keyframes fall2 {
     0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
+        transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
+        opacity: 0.96;
+    }
+    75% {
+        opacity: 0.92;
     }
     100% {
-        transform: translateY(100vh) rotate(-360deg);
+        transform: translateY(100vh) rotate(-360deg) scale(var(--petal-scale, 1));
         opacity: 0;
     }
 }
 
 @keyframes fall3 {
     0% {
-        transform: translateY(0) rotate(0deg) scale(1);
-        opacity: 0.8;
+        transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
+        opacity: 0.96;
+    }
+    75% {
+        opacity: 0.92;
     }
     100% {
-        transform: translateY(100vh) rotate(720deg) scale(0.8);
+        transform: translateY(100vh) rotate(720deg) scale(calc(var(--petal-scale, 1) * 0.9));
         opacity: 0;
     }
 }
 
 @keyframes fall4 {
     0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 0.8;
+        transform: translateY(0) rotate(0deg) scale(var(--petal-scale, 1));
+        opacity: 0.96;
+    }
+    75% {
+        opacity: 0.92;
     }
     100% {
-        transform: translateY(100vh) rotate(180deg);
+        transform: translateY(100vh) rotate(180deg) scale(var(--petal-scale, 1));
         opacity: 0;
     }
 }
 
 @keyframes fall5 {
     0% {
-        transform: translateY(0) rotate(0deg) rotateX(0deg);
-        opacity: 0.8;
+        transform: translateY(0) rotate(0deg) rotateX(0deg) scale(var(--petal-scale, 1));
+        opacity: 0.96;
+    }
+    75% {
+        opacity: 0.92;
     }
     100% {
-        transform: translateY(100vh) rotate(360deg) rotateX(360deg);
+        transform: translateY(100vh) rotate(360deg) rotateX(360deg) scale(var(--petal-scale, 1));
         opacity: 0;
     }
 }
 
-/* 响应式设�?*/
+/* 手机竖屏优先排版 */
 @media (max-width: 768px) {
-    .title {
-        font-size: 2.5rem;
-        letter-spacing: 0.3rem;
+    .main-content {
+        padding: 0.75rem 0.75rem 6.5rem;
+        gap: 0.65rem;
     }
-    
-    .subtitle {
-        font-size: 1rem;
+
+    .couple-section,
+    .love-message {
+        margin: 0;
+        padding: 0.85rem 0.9rem;
     }
-    
-    .couple-section {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .heart {
-        margin: 1rem 0;
-    }
-    
-    .countdown {
+
+    .thanks-banner {
+        padding: 1rem 0.85rem;
         gap: 0.5rem;
     }
-    
-    .time-box {
-        min-width: 60px;
-        padding: 1rem 0.5rem;
+
+    .thanks-text {
+        font-size: 0.68rem;
+        line-height: 1.75;
     }
-    
-    .time-value {
-        font-size: 1.5rem;
+
+    .thanks-names {
+        font-size: 0.95rem;
     }
-    
-    .name {
-        font-size: 1.5rem;
+
+    .section-title {
+        font-size: 0.85rem;
+        margin-bottom: 0.55rem;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .guest-hint {
+        font-size: 0.58rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .guest-list {
+        max-height: min(26vh, 200px);
+        gap: 0.35rem 0.4rem;
+    }
+
+    .guest-name {
+        font-size: 0.62rem;
+        padding: 0.28rem 0.5rem;
+    }
+
+    .play-space {
+        min-height: 36vh;
     }
 
     .character {
-        transform: scale(0.7) translateX(-50%);
+        bottom: 12px;
+        transform: scale(0.58) translateX(-50%);
+        transform-origin: bottom center;
+    }
+
+    .running-character {
+        width: 240px;
+        height: 240px;
+    }
+
+    .score-board {
+        top: 8px;
+        right: 8px;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.7rem;
+        z-index: 10001;
+    }
+
+    .score-board .score-label {
+        font-size: 0.5rem;
+        margin-bottom: 0.15rem;
+    }
+
+    .score-board .score-value {
+        font-size: 1.35rem;
+    }
+
+    .catch-effect {
+        font-size: 1.4rem;
     }
 }
 
+/* 很窄的手机 */
+@media (max-width: 380px) {
+    .name {
+        font-size: 1.05rem;
+    }
+
+    .guest-name {
+        font-size: 0.55rem;
+        padding: 0.22rem 0.4rem;
+    }
+
+    .character {
+        transform: scale(0.5) translateX(-50%);
+    }
+}
+
+/* 底部可移动的小人 */
 .character {
     position: fixed;
     bottom: 30px;
@@ -604,36 +891,27 @@ body {
     pointer-events: none;
 }
 
+/* 跑步角色动画 */
 .running-character {
-    width: 240px;
-    height: 240px;
+    width: 300px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #characterSprite {
-    width: 240px;
-    height: 240px;
-    background-image: url("./spritesheet_wedding.png");
-    background-repeat: no-repeat;
-    /* 整张雪碧图真实尺寸 */
-    background-size: 2400px 1440px;
+    max-width: 100%;
+    max-height: 100%;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
 }
 
-/* 向左移动翻转 */
+/* 当角色向左移动时翻转图片 */
 .character.moving-left #characterSprite {
     transform: scaleX(-1);
 }
-
-@media (max-width: 768px) {
-    .character {
-        transform: scale(0.8) translateX(-50%);
-    }
-}
-
-
-
 
 /* 清理旧样�?*/
 .flower-basket,
@@ -661,7 +939,7 @@ body {
     pointer-events: none;
     animation: gbaCatchEffect 0.8s steps(4) forwards;
     z-index: 10001;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     color: #ffd700;
     text-shadow: 
         2px 2px 0px #000,
@@ -710,7 +988,7 @@ body {
 .score-board .score-value {
     font-size: 3rem;
     text-align: center;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Courier New', monospace;
     color: #ffd700;
 }
 
@@ -721,7 +999,7 @@ body {
     right: 200px;
     padding: 0.8rem 1.5rem;
     font-size: 1rem;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     background: linear-gradient(180deg, #ff69b4 0%, #c41e3a 100%);
     color: #fff;
     border: 4px solid #000;
@@ -806,7 +1084,7 @@ body {
     color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: Arial, sans-serif;
     line-height: 1;
     padding: 0;
     width: 30px;
@@ -838,7 +1116,7 @@ body {
     padding: 0.8rem;
     border: 3px solid #000;
     background: #e8e8e8;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     font-size: 0.7rem;
     box-shadow: inset -2px -2px 0px rgba(0, 0, 0, 0.2);
 }
@@ -852,7 +1130,7 @@ body {
     width: 100%;
     padding: 1rem;
     font-size: 1rem;
-    font-family: 'Ark Pixel 12px Proportional', monospace;
+    font-family: 'Pixeloid Sans', 'Press Start 2P', monospace;
     background: linear-gradient(180deg, #ffd700 0%, #ffa500 100%);
     color: #000;
     border: 4px solid #000;
@@ -874,70 +1152,25 @@ body {
         2px 2px 0px #000;
 }
 
-/* 祝福列表 */
-.blessing-list {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    width: 300px;
-    max-height: 500px;
-    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-    border: 4px solid #000;
-    box-shadow: 
-        inset -2px -2px 0px rgba(0, 0, 0, 0.5),
-        inset 2px 2px 0px rgba(255, 255, 255, 0.1),
-        4px 4px 0px #000;
-    z-index: 10000;
-    overflow: hidden;
-}
-
-.blessing-list-header {
-    background: linear-gradient(90deg, #ff6b9d 0%, #c41e3a 100%);
-    padding: 0.8rem;
-    border-bottom: 2px solid #000;
-    color: #fff;
-    font-size: 0.9rem;
-    text-shadow: 2px 2px 0px #000;
-    text-align: center;
-}
-
-.blessing-list-items {
-    max-height: 440px;
-    overflow-y: auto;
-    padding: 0.5rem;
-}
-
-.blessing-list-item {
-    background: linear-gradient(180deg, #d8d8d8 0%, #b8b8b8 100%);
-    border: 2px solid #000;
-    padding: 0.8rem;
-    margin-bottom: 0.5rem;
-    animation: blessingItemSlide 0.5s steps(6);
-}
-
-@keyframes blessingItemSlide {
-    from {
-        transform: translateX(-100px);
-        opacity: 0;
+/* 宽屏留白与间距 */
+@media (min-width: 769px) {
+    .guest-list {
+        max-height: 320px;
+        gap: 0.55rem 0.7rem;
     }
-    to {
-        transform: translateX(0);
-        opacity: 1;
+
+    .guest-name {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.85rem;
     }
-}
 
-.blessing-list-item-name {
-    color: #c41e3a;
-    font-size: 0.7rem;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-}
+    .play-space {
+        min-height: 38vh;
+    }
 
-.blessing-list-item-text {
-    color: #333;
-    font-size: 0.5rem;
-    line-height: 1.6;
-    word-wrap: break-word;
+    .main-content {
+        padding: 2rem 1rem 8rem;
+    }
 }
 
 /* 祝福爱心 */
